@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付宝/微信/红包码</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        
+        .main-image {
+            max-width: 80%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* 悬浮图片容器 */
+        .fixed-image {
+            position: fixed;
+            top: 350px;
+            right: 50px;
+            width: 140px;
+            border-radius: 7px;
+            overflow: hidden;
+            cursor: pointer;
+            transform: scale(0.3);  /* 初始缩放为30% */
+            transform-origin: top right;  /* 从右上角开始缩放 */
+            transition: transform 0.3s ease;  /* 添加过渡动画 */
+            z-index: 999;
+        }
+
+        /* 展开状态 */
+        .fixed-image.expanded {
+            transform: scale(1);  /* 恢复原始尺寸 */
+        }
+
+        .fixed-image img {
+            width: 100%;
+            height: auto;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+    <!-- 主图片 -->
+    <img class="main-image" src="../img/i0.jpg" alt="支付宝/微信收款码">
+
+    <!-- 悬浮图片 -->
+    <div class="fixed-image">
+        <img 
+            src="../img/hbm.jpg" 
+            alt="红包码"
+        >
+    </div>
+
+    <script>
+        // 点击切换展开状态
+        document.querySelector('.fixed-image').addEventListener('click', function() {
+            this.classList.toggle('expanded');
+        });
+    </script>
+</body>
+</html>

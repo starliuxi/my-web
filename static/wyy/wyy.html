@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>音乐空间</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css">
+    <style>
+        :root {
+            --main-bg: #e3f2fd;
+            --card-bg: #f5fbff;
+            --text-dark: #2c3e50;
+            --accent-blue: #64b5f6;
+            --shadow-dark: #81d4fa;
+            --shadow-light: #b3e5fc;
+        }
+
+        body {
+            background: var(--main-bg);
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            font-family: 'Microsoft Yahei', sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* 顶部图片区 */
+        .banner {
+            height: 400px;
+            border-radius: 30px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            box-shadow: 15px 15px 30px var(--shadow-dark),
+                       -15px -15px 30px var(--shadow-light);
+        }
+        .banner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .banner-img:hover {
+            transform: scale(1.03);
+        }
+
+        /* 选项框容器 */
+        .option-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .music-option {
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 30px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 8px 8px 16px var(--shadow-dark),
+                       -8px -8px 16px var(--shadow-light);
+        }
+        .music-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 12px 12px 24px var(--shadow-dark),
+                       -12px -12px 24px var(--shadow-light);
+        }
+        .music-option h2 {
+            color: var(--accent-blue);
+            font-size: 24px;
+            margin: 0 0 15px 0;
+        }
+        .music-option p {
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin: 0;
+            font-size: 16px;
+        }
+
+        /* 播放器网格 */
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+        .player-card {
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 12px 12px 24px var(--shadow-dark),
+                      -12px -12px 24px var(--shadow-light);
+        }
+        .player-title {
+            color: var(--accent-blue);
+            font-size: 22px;
+            text-align: center;
+            margin: 0 0 15px 0;
+            text-shadow: 2px 2px 3px rgba(100,181,246,0.2);
+        }
+
+        /* 播放器样式 */
+        .aplayer {
+            background: transparent !important;
+            margin: 0 !important;
+            border-radius: 15px !important;
+        }
+        .aplayer .aplayer-info {
+            padding: 10px 0;
+            color: var(--text-dark);
+        }
+        .aplayer .aplayer-bar {
+            background: rgba(100,181,246,0.3) !important;
+            height: 4px;
+        }
+        .aplayer .aplayer-played {
+            background: var(--accent-blue) !important;
+            height: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .player-grid,
+            .option-container {
+                grid-template-columns: 1fr;
+            }
+            .banner {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 顶部图片（添加可点击链接） -->
+    <div class="banner">
+        <a href="mia.html">
+            <img src="../img/yy.jpg" 
+                 alt="音乐主题海报"
+                 class="banner-img">
+        </a>
+    </div>
+
+        <!-- 选项框 -->
+        <div class="option-container">
+            <a href="https://y.music.163.com/m/user?id=1594780758" class="music-option">
+                <h2>个人主页</h2>
+                <p>探索我的音乐世界<br>发现更多精彩内容</p>
+            </a>
+            <a href="http://music.163.com/artist?id=52003465&userid=1594780758" class="music-option">
+                <h2>歌手主页</h2>
+                <p>Star 的音乐旅程<br>最新作品与演出信息</p>
+            </a>
+        </div>
+
+        <!-- 播放器模块 -->
+        <div class="player-grid">
+            <div class="player-card">
+                <h3 class="player-title">✨ 我的收藏 ✨</h3>
+                <meting-js
+                    list-folded="true"
+                    list-max-height="280px"
+                    server="netease"
+                    type="playlist"
+                    id="2414890741">
+                </meting-js>
+            </div>
+
+            <div class="player-card">
+                <h3 class="player-title">✨ 英文精选 ✨</h3>
+                <meting-js
+                    list-folded="true"
+                    list-max-height="280px"
+                    server="netease"
+                    type="playlist"
+                    id="10112311972">
+                </meting-js>
+            </div>
+
+            <div class="player-card">
+                <h3 class="player-title">✨ 轻音乐集 ✨</h3>
+                <meting-js
+                    list-folded="true"
+                    list-max-height="280px"
+                    server="netease"
+                    type="playlist"
+                    id="2484314395">
+                </meting-js>
+            </div>
+
+            <div class="player-card">
+                <h3 class="player-title">✨ 流行热歌 ✨</h3>
+                <meting-js
+                    list-folded="true"
+                    list-max-height="280px"
+                    server="netease"
+                    type="playlist"
+                    id="8681669187">
+                </meting-js>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script>
+</body>
+</html>

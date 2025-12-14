@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>缴费教程</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .tutorial-section {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            overflow: hidden;
+        }
+        .tutorial-section summary {
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+        .tutorial-section summary:hover {
+            background-color: #e1e1e1;
+        }
+        .screenshot {
+            margin: 20px;
+            text-align: center;
+        }
+        .screenshot img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            background-color: #fff;
+        }
+        .screenshot p {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        .password-section {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            text-align: center;
+        }
+        .password-section input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .password-section button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        .password-section button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        .account-number {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>缴费教程</h1>
+
+    <!-- 电费缴费教程 -->
+    <div class="tutorial-section">
+        <details>
+            <summary>电费缴费教程</summary>
+            <div class="screenshot">
+                <img src="screenshot1.jpg" alt="电费截图1">
+                <p>截图1: 第一步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="screenshot2.jpg" alt="电费截图2">
+                <p>截图2: 第二步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="screenshot3.jpg" alt="电费截图3">
+                <p>截图3: 第三步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="screenshot4.jpg" alt="电费截图4">
+                <p>截图4: 第四步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="screenshot5.jpg" alt="电费截图5">
+                <p>截图5: 第五步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="screenshot6.jpg" alt="电费截图6">
+                <p>截图6: 第六步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="screenshot7.jpg" alt="电费截图7">
+                <p>截图7: 第七步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="screenshot8.jpg" alt="电费截图8">
+                <p>截图8: 第八步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="screenshot9.jpg" alt="电费截图9">
+                <p>截图9: 第九步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="screenshot10.jpg" alt="电费截图10">
+                <p>截图10: 第十步操作</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- 燃气缴费教程 -->
+    <div class="tutorial-section">
+        <details>
+            <summary>燃气缴费教程</summary>
+            <div class="screenshot">
+                <img src="gas1.jpg" alt="燃气截图1">
+                <p>截图1: 第一步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="gas2.jpg" alt="燃气截图2">
+                <p>截图2: 第二步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="gas3.jpg" alt="燃气截图3">
+                <p>截图3: 第三步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="gas4.jpg" alt="燃气截图4">
+                <p>截图4: 第四步操作</p>
+            </div>
+            <div class="screenshot">
+                <img src="gas5.jpg" alt="燃气截图5">
+                <p>截图5: 第五步操作</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- 密码保护区块 -->
+    <div class="password-section">
+        <h2>查看户号</h2>
+        <input type="password" id="passwordInput" placeholder="输入密码">
+        <button onclick="checkPassword()">提交</button>
+        <div id="accountNumber" class="hidden account-number">
+            <p>刘长江 燃气户号：<strong>01080463</strong></p>
+            <p>刘长江 电费户号：<strong>012011020483</strong></p>
+            <p>文华玲 燃气户号：<strong>01080465</strong></p>
+            <p>文华玲 电费户号：<strong>012011001387</strong></p>
+        </div>
+    </div>
+
+    <script>
+        function checkPassword() {
+            const passwordInput = document.getElementById('passwordInput').value;
+            const accountNumber = document.getElementById('accountNumber');
+
+            if (passwordInput === '110') {
+                accountNumber.classList.remove('hidden');
+            } else {
+                alert('密码错误，请重试！');
+                accountNumber.classList.add('hidden');
+            }
+        }
+    </script>
+    <!-- 日志记录四重保险 -->
+<noscript>
+  <!-- 1. 基础img标签（兼容无JS） -->
+  <img src="https://ikun.7749.org/log.php?from=img&t=<?=time()?>" style="display:none;">
+</noscript>
+
+<script>
+// 2. Beacon API（最佳实践）
+if (navigator.sendBeacon) {
+  navigator.sendBeacon(
+    'https://ikun.7749.org/log.php?from=beacon',
+    new Blob([location.href], {type: 'text/plain'})
+  );
+
+// 3. Fetch备用方案
+} else if (window.fetch) {
+  fetch('https://ikun.7749.org/log.php?from=fetch&r=' + 
+        encodeURIComponent(location.href) + 
+        '&t=' + Date.now(), 
+        {cache: 'no-store', mode: 'no-cors'});
+
+// 4. 终极Image备用
+} else {
+  (new Image()).src = 'https://ikun.7749.org/log.php?from=fallback&t=' + Date.now();
+}
+
+// 5. 针对微信的特殊处理
+if (/MicroMessenger/i.test(navigator.userAgent)) {
+  document.addEventListener('WeixinJSBridgeReady', function() {
+    (new Image()).src = 'https://ikun.7749.org/log.php?from=wechat&t=' + Date.now();
+  });
+}
+</script>
+
+<!-- 6. 隐藏iframe终极方案 -->
+<iframe src="https://ikun.7749.org/log.php?from=iframe
+</body>
+</html>
