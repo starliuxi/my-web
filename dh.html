@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星辰导航</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Microsoft YaHei',sans-serif}
+body{background:#f5f7fa;color:#333;padding:10px;max-width:1400px;margin:auto}
+
+/* 头部 */
+.header{
+    background:linear-gradient(135deg,#4a6fa5,#6b8cbc);
+    color:white;
+    padding:16px;
+    border-radius:10px;
+    margin-bottom:15px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(74,111,165,0.15);
+}
+h1{font-size:20px;margin-bottom:5px;display:flex;align-items:center;justify-content:center;gap:8px}
+.subtitle{opacity:0.9;font-size:12px;margin-bottom:12px}
+
+/* 智能搜索框 */
+.search-container{
+    margin:12px auto;
+    max-width:500px;
+}
+.search-box{
+    display:flex;
+    gap:8px;
+    margin-bottom:8px;
+}
+.search-box input{
+    flex:1;
+    padding:10px 16px;
+    border:none;
+    border-radius:20px;
+    font-size:14px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.1);
+    background:rgba(255,255,255,0.95);
+}
+.search-box button{
+    padding:0 20px;
+    background:#ff7e5f;
+    color:white;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+    font-size:14px;
+    transition:0.2s;
+}
+.search-box button:hover{
+    background:#ff6b4a;
+    transform:translateY(-1px);
+}
+.search-engine-selector{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:10px;
+}
+.engine-btn{
+    padding:4px 12px;
+    background:rgba(255,255,255,0.2);
+    color:white;
+    border:1px solid rgba(255,255,255,0.3);
+    border-radius:15px;
+    cursor:pointer;
+    font-size:11px;
+    transition:0.2s;
+}
+.engine-btn:hover{
+    background:rgba(255,255,255,0.3);
+}
+.engine-btn.active{
+    background:white;
+    color:#4a6fa5;
+    border-color:white;
+}
+
+/* 卡片网格布局 - 更紧凑 */
+.sites-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);  /* 电脑大屏：一排5个 */
+    gap:10px;
+    margin-bottom:15px;
+}
+/* 电脑：一排4个 */
+@media(max-width:1200px){.sites-grid{grid-template-columns:repeat(4,1fr)}}
+/* 平板：一排3个 */
+@media(max-width:900px){.sites-grid{grid-template-columns:repeat(3,1fr)}}
+/* 手机：一排2个 */
+@media(max-width:600px){.sites-grid{grid-template-columns:repeat(2,1fr);gap:8px}}
+/* 小手机：一排2个但更紧凑 */
+@media(max-width:400px){.sites-grid{grid-template-columns:repeat(2,1fr);gap:6px}}
+
+.site-card{
+    background:white;
+    padding:12px;
+    border-radius:8px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.07);
+    transition:all 0.2s ease;
+    display:flex;
+    flex-direction:column;
+    min-height:85px;  /* 更紧凑的高度 */
+    height:auto;
+    position:relative;
+    overflow:hidden;
+    border:1px solid #f0f0f0;
+}
+.site-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 10px rgba(0,0,0,0.12);
+    border-color:#4a6fa5;
+}
+.site-card a{
+    color:#333;
+    text-decoration:none;
+    font-weight:600;
+    font-size:14px;
+    margin-bottom:4px;
+    line-height:1.2;
+    display:block;
+}
+.site-card a:hover{color:#4a6fa5}
+.site-card .desc{
+    color:#666;
+    font-size:11px;
+    line-height:1.3;
+    margin-top:3px;
+    flex-grow:1;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+.site-card .category-tag{
+    position:absolute;
+    top:5px;
+    right:5px;
+    background:#f0f5ff;
+    color:#4a6fa5;
+    font-size:9px;
+    padding:1px 6px;
+    border-radius:8px;
+    white-space:nowrap;
+}
+
+/* 分类折叠面板 */
+.category{
+    background:white;
+    border-radius:8px;
+    margin-bottom:12px;
+    overflow:hidden;
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+.category-header{
+    background:#f8f9fa;
+    padding:12px 14px;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    user-select:none;
+    border-bottom:1px solid #f0f0f0;
+}
+.category-header h2{
+    color:#4a6fa5;
+    font-size:15px;
+    margin:0;
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+.category-header .count{
+    background:#4a6fa5;
+    color:white;
+    padding:1px 6px;
+    border-radius:8px;
+    font-size:10px;
+    font-weight:normal;
+}
+.category-header .toggle{
+    color:#4a6fa5;
+    font-size:12px;
+    transition:transform 0.3s;
+}
+.category-content{
+    padding:12px;
+    display:block;
+}
+.category.collapsed .category-content{
+    display:none;
+}
+.category.collapsed .toggle{
+    transform:rotate(-90deg);
+}
+
+/* 悬浮操作按钮 */
+.float-buttons{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    z-index:100;
+}
+.float-btn{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:#4a6fa5;
+    color:white;
+    border:none;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    transition:all 0.2s ease;
+}
+.float-btn:hover{
+    background:#3a5f95;
+    transform:scale(1.1);
+    box-shadow:0 6px 15px rgba(0,0,0,0.2);
+}
+.float-btn.expand-btn{background:#4a6fa5}
+.float-btn.collapse-btn{background:#6b8cbc}
+.float-btn.search-btn{background:#ff7e5f}
+
+/* 统计和页脚 */
+.stats{
+    text-align:center;
+    margin:15px 0;
+    padding:10px;
+    background:white;
+    border-radius:6px;
+    color:#4a6fa5;
+    font-weight:600;
+    font-size:12px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+.footer{
+    padding:15px;
+    text-align:center;
+    color:#888;
+    font-size:11px;
+    border-top:1px solid #eaeaea;
+    margin-top:15px;
+}
+.footer a{
+    color:#4a6fa5;
+    text-decoration:none;
+    margin:0 6px;
+}
+.footer a:hover{text-decoration:underline}
+
+/* 分类图标 */
+.category-icon{font-size:14px}
+
+/* 暗色模式支持 */
+@media(prefers-color-scheme:dark){
+    body{background:#1a1a2e;color:#e0e0e0}
+    .header{background:linear-gradient(135deg,#2d3748,#4a5568)}
+    .site-card{background:#2d3748;border-color:#4a5568}
+    .site-card a{color:#e0e0e0}
+    .site-card .desc{color:#a0aec0}
+    .category-header{background:#2d3748;border-color:#4a5568}
+    .stats{background:#2d3748}
+    .footer{border-color:#4a5568}
+    .float-btn{
+        background:#4a5568;
+        box-shadow:0 4px 12px rgba(0,0,0,0.3);
+    }
+    .float-btn:hover{background:#3a4558}
+}
+
+/* 快速操作提示 */
+.key-hint{
+    text-align:center;
+    margin:10px 0;
+    color:#888;
+    font-size:11px;
+}
+</style>
+</head>
+<body>
+<div class="header">
+<h1><span style="color:#ffd700">⭐</span> 星辰导航</h1>
+<p class="subtitle"></p>
+
+<div class="search-container">
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="输入关键词，回车搜索...">
+        <button onclick="performSearch()">搜索</button>
+    </div>
+    <div class="search-engine-selector">
+        <button class="engine-btn active" data-engine="baidu">百度</button>
+        <button class="engine-btn" data-engine="google">谷歌</button>
+        <button class="engine-btn" data-engine="bing">必应</button>
+        <button class="engine-btn" data-engine="site">站内搜索</button>
+        <button class="engine-btn" data-engine="github">GitHub</button>
+        <button class="engine-btn" data-engine="bilibili">哔哩哔哩</button>
+        <button class="engine-btn" data-engine="youtube">YouTube</button>
+    </div>
+</div>
+</div>
+
+<div class="key-hint"></div>
+
+<!-- 个人网站 -->
+<div class="category">
+<div class="category-header" onclick="toggleCategory(this)">
+<h2><span class="category-icon">🏠</span> 个人网站 <span class="count">4</span></h2>
+<span class="toggle">▼</span>
+</div>
+<div class="category-content">
+<div class="sites-grid">
+<div class="site-card"><span class="category-tag">个人</span><a href="http://starliuxi.github.io/my-web" target="_blank">一只星辰吖</a><div class="desc">个人网站，分享资源</div></div>
+<div class="site-card"><span class="category-tag">工具</span><a href="http://192.168.2.3:5700" target="_blank">青龙面板</a><div class="desc">脚本挂机管理</div></div>
+<div class="site-card"><span class="category-tag">导航</span><a href="https://ql.7749.org" target="_blank">本站导航</a><div class="desc">导航网站备用地址</div></div>
+<div class="site-card"><span class="category-tag">娱乐</span><a href="https://start.7749.org" target="_blank">摸头生成器</a><div class="desc">生成摸头GIF动图</div></div>
+</div>
+</div>
+</div>
+
+<!-- 视频与娱乐 -->
+<div class="category">
+<div class="category-header" onclick="toggleCategory(this)">
+<h2><span class="category-icon">🎬</span> 视频与娱乐 <span class="count">6</span></h2>
+<span class="toggle">▼</span>
+</div>
+<div class="category-content">
+<div class="sites-grid">
+<div class="site-card"><span class="category-tag">视频</span><a href="https://www.bilibili.com" target="_blank">哔哩哔哩</a><div class="desc">二次元弹幕视频网站</div></div>
+<div class="site-card"><span class="category-tag">视频</span><a href="https://www.youtube.com" target="_blank">YouTube</a><div class="desc">全球最大视频平台</div></div>
+<div class="site-card"><span class="category-tag">游戏</span><a href="https://cg.163.com" target="_blank">网易云游戏</a><div class="desc">无需下载在线游戏</div></div>
+<div class="site-card"><span class="category-tag">动漫</span><a href="https://www.yinghuadm.cn" target="_blank">樱花动漫</a><div class="desc">在线观看动漫番剧</div></div>
+<div class="site-card"><span class="category-tag">学习</span><a href="https://www.musicca.com/zh" target="_blank">Musicca</a><div class="desc">免费乐理学习工具</div></div>
+<div class="site-card"><span class="category-tag">课程</span><a href="https://open.163.com/ocw/" target="_blank">网易公开课</a><div class="desc">名校公开课视频</div></div>
+</div>
+</div>
+</div>
+
+<!-- 邮箱服务 -->
+<div class="category">
+<div class="category-header" onclick="toggleCategory(this)">
+<h2><span class="category-icon">📧</span> 邮箱服务 <span class="count">3</span></h2>
+<span class="toggle">▼</span>
+</div>
+<div class="category-content">
+<div class="sites-grid">
+<div class="site-card"><span class="category-tag">腾讯</span><a href="https://mail.qq.com" target="_blank">QQ邮箱</a><div class="desc">腾讯旗下邮箱服务</div></div>
+<div class="site-card"><span class="category-tag">谷歌</span><a href="https://mail.google.com" target="_blank">Gmail</a><div class="desc">谷歌免费邮箱</div></div>
+<div class="site-card"><span class="category-tag">网易</span><a href="https://mail.163.com" target="_blank">163邮箱</a><div class="desc">网易经典邮箱服务</div></div>
+</div>
+</div>
+</div>
+
+<!-- 工具与实用网站 -->
+<div class="category">
+<div class="category-header" onclick="toggleCategory(this)">
+<h2><span class="category-icon">🛠️</span> 工具与实用网站 <span class="count">12</span></h2>
+<span class="toggle">▼</span>
+</div>
+<div class="category-content">
+<div class="sites-grid">
+<div class="site-card"><span class="category-tag">网络</span><a href="https://ip.im/" target="_blank">IP查询</a><div class="desc">查看IP和地理位置</div></div>
+<div class="site-card"><span class="category-tag">生活</span><a href="https://xuezhongcai.com" target="_blank">学种菜</a><div class="desc">种植养殖知识</div></div>
+<div class="site-card"><span class="category-tag">优惠</span><a href="http://new.ixbk.net/" target="_blank">线报酷</a><div class="desc">优惠活动线报</div></div>
+<div class="site-card"><span class="category-tag">音乐</span><a href="http://tool.moxuangenet.com/tool/ncm/" target="_blank">NCM转换</a><div class="desc">网易云格式转换</div></div>
+<div class="site-card"><span class="category-tag">工具</span><a href="https://one.suucc.com" target="_blank">OneTool</a><div class="desc">多功能工具箱</div></div>
+<div class="site-card"><span class="category-tag">文档</span><a href="https://smallpdf.com/cn" target="_blank">SmallPDF</a><div class="desc">PDF编辑转换</div></div>
+<div class="site-card"><span class="category-tag">图表</span><a href="https://www.processon.com" target="_blank">ProcessOn</a><div class="desc">在线流程图制作</div></div>
+<div class="site-card"><span class="category-tag">开发</span><a href="https://tool.lu" target="_blank">在线工具</a><div class="desc">开发工具大全</div></div>
+<div class="site-card"><span class="category-tag">应用</span><a href="https://m.wandoujia.com/" target="_blank">豌豆荚</a><div class="desc">安卓应用下载</div></div>
+<div class="site-card"><span class="category-tag">学习</span><a href="http://1nami.com/" target="_blank">1nami导航</a><div class="desc">学习资源导航</div></div>
+<div class="site-card"><span class="category-tag">云服务</span><a href="https://ap-southeast-1.run.claw.cloud/" target="_blank">爪云</a><div class="desc">云服务控制台</div></div>
+</div>
+</div>
+</div>
+
+<!-- 技术与开发 -->
+<div class="category">
+<div class="category-header" onclick="toggleCategory(this)">
+<h2><span class="category-icon">💻</span> 技术与开发 <span class="count">11</span></h2>
+<span class="toggle">▼</span>
+</div>
+<div class="category-content">
+<div class="sites-grid">
+<div class="site-card"><span class="category-tag">代码</span><a href="https://github.com" target="_blank">GitHub</a><div class="desc">代码托管平台</div></div>
+<div class="site-card"><span class="category-tag">问答</span><a href="https://stackoverflow.com" target="_blank">Stack Overflow</a><div class="desc">程序员问答社区</div></div>
+<div class="site-card"><span class="category-tag">社区</span><a href="https://segmentfault.com" target="_blank">SegmentFault</a><div class="desc">中文技术社区</div></div>
+<div class="site-card"><span class="category-tag">教程</span><a href="https://www.w3school.com.cn" target="_blank">w3school</a><div class="desc">Web开发教程</div></div>
+<div class="site-card"><span class="category-tag">维修</span><a href="https://zh.ifixit.com" target="_blank">iFixit</a><div class="desc">设备维修指南</div></div>
+<div class="site-card"><span class="category-tag">硬件</span><a href="https://oshwhub.com" target="_blank">嘉立创硬件</a><div class="desc">硬件设计社区</div></div>
+<div class="site-card"><span class="category-tag">教程</span><a href="https://www.runoob.com/" target="_blank">菜鸟教程</a><div class="desc">编程入门教程</div></div>
+<div class="site-card"><span class="category-tag">文档</span><a href="https://developer.mozilla.org/zh-CN/" target="_blank">MDN文档</a><div class="desc">Web开发文档</div></div>
+<div class="site-card"><span class="category-tag">前端</span><a href="https://dwqs.gitbooks.io/frontenddevhandbook/content/index.html" target="_blank">前端手册</a><div class="desc">前端开发者手册</div></div>
+<div class="site-card"><span class="category-tag">前端</span><a href="https://leohxj.gitbooks.io/front-end-database/content/index.html" target="_blank">前端指南</a><div class="desc">前端开发学习</div></div>
+<div class="site-card"><span class="category-tag">JS</span><a href="https://wangdoc.com/javascript/" target="_blank">JS教程</a><div class="desc">JS教程</div></div>
+</div>
+</div>
+</div>
+
+<!-- 刷机与硬件 -->
+<div class="category">
+<div class="category-header" onclick="toggleCategory(this)">
+<h2><span class="category-icon">🔧</span> 刷机与硬件 <span class="count">3</span></h2>
+<span class="toggle">▼</span>
+</div>
+<div class="category-content">
+<div class="sites-grid">
+<div class="site-card"><span class="category-tag">路由器</span><a href="https://www.right.com.cn" target="_blank">恩山论坛</a><div class="desc">路由器刷机固件</div></div>
+<div class="site-card"><span class="category-tag">手机</span><a href="https://www.rom100.com" target="_blank">万维维修</a><div class="desc">手机固件刷机</div></div>
+<div class="site-card"><span class="category-tag">资料</span><a href="https://www.yhcres.top" target="_blank">萤火虫</a><div class="desc">刷机资料工具</div></div>
+</div>
+</div>
+</div>
+
+<!-- 代理与网络 -->
+<div class="category">
+<div class="category-header" onclick="toggleCategory(this)">
+<h2><span class="category-icon">🌐</span> 代理与网络 <span class="count">4</span></h2>
+<span class="toggle">▼</span>
+</div>
+<div class="category-content">
+<div class="sites-grid">
+<div class="site-card"><span class="category-tag">代理</span><a href="http://justcn2.top/" target="_blank">CN2线路</a><div class="desc">免费代理服务</div></div>
+<div class="site-card"><span class="category-tag">FRP</span><a href="https://natfrp.com" target="_blank">樱花FRP</a><div class="desc">内网穿透服务</div></div>
+<div class="site-card"><span class="category-tag">代理</span><a href="https://ikuuu.de" target="_blank">iKuuu代理</a><div class="desc">代理服务</div></div>
+<div class="site-card"><span class="category-tag">CDN</span><a href="https://cloudflare.com" target="_blank">Cloudflare</a><div class="desc">CDN和DNS服务</div></div>
+<div class="site-card"><span class="category-tag">网络</span><a href="https://www.zerotier.com/" target="_blank">Zerotier</a><div class="desc">内网穿透组网</div></div>
+<div class="site-card"><span class="category-tag">DNS</span><a href="https://my.dnshe.com" target="_blank">DNSHE</a><div class="desc">DNS和域名服务</div></div>
+</div>
+</div>
+</div>
+
+<!-- iOS与应用 -->
+<div class="category">
+<div class="category-header" onclick="toggleCategory(this)">
+<h2><span class="category-icon">📱</span> iOS与应用 <span class="count">6</span></h2>
+<span class="toggle">▼</span>
+</div>
+<div class="category-content">
+<div class="sites-grid">
+<div class="site-card"><span class="category-tag">苹果</span><a href="https://iios.me" target="_blank">iios.me</a><div class="desc">苹果软件站</div></div>
+<div class="site-card"><span class="category-tag">应用</span><a href="https://kill.mhfs.eu.org" target="_blank">i4应用</a><div class="desc">iOS应用商店</div></div>
+<div class="site-card"><span class="category-tag">插件</span><a href="https://whatshub.top" target="_blank">Family插件</a><div class="desc">WhatsApp增强插件</div></div>
+<div class="site-card"><span class="category-tag">账号</span><a href="https://tkbaohe.com" target="_blank">小火箭账号</a><div class="desc">小火箭共享账号</div></div>
+<div class="site-card"><span class="category-tag">游戏</span><a href="https://iosyouxi.com" target="_blank">iOS游戏</a><div class="desc">iOS游戏下载</div></div>
+</div>
+</div>
+</div>
+
+<!-- 游戏与娱乐 -->
+<div class="category">
+<div class="category-header" onclick="toggleCategory(this)">
+<h2><span class="category-icon">🎮</span> 游戏与娱乐 <span class="count">1</span></h2>
+<span class="toggle">▼</span>
+</div>
+<div class="category-content">
+<div class="sites-grid">
+<div class="site-card"><span class="category-tag">游戏</span><a href="https://dontstarve.huijiwiki.com" target="_blank">饥荒Wiki</a><div class="desc">饥荒游戏Wiki百科</div></div>
+</div>
+</div>
+</div>
+
+<!-- AI 与智能工具 -->
+<div class="category">
+<div class="category-header" onclick="toggleCategory(this)">
+<h2><span class="category-icon">🤖</span> AI 与智能工具 <span class="count">2</span></h2>
+<span class="toggle">▼</span>
+</div>
+<div class="category-content">
+<div class="sites-grid">
+<div class="site-card"><span class="category-tag">AI</span><a href="https://chatgpt.com" target="_blank">ChatGPT</a><div class="desc">OpenAI对话助手</div></div>
+<div class="site-card"><span class="category-tag">AI</span><a href="https://chat.deepseek.com/sign_in" target="_blank">DeepSeek</a><div class="desc">深度求索AI助手</div></div>
+</div>
+</div>
+</div>
+
+<div class="stats" id="stats">共收录 49 个网站</div>
+
+<div class="footer">
+<p>© 2025 星辰导航 | <a href="http://starliuxi.github.io/my-web" target="_blank">一只星辰吖</a></p>
+</div>
+
+<!-- 悬浮操作按钮 -->
+<div class="float-buttons">
+<button class="float-btn expand-btn" onclick="expandAll()" title="展开全部">📖</button>
+<button class="float-btn collapse-btn" onclick="collapseAll()" title="折叠全部">📕</button>
+<button class="float-btn search-btn" onclick="focusSearch()" title="聚焦搜索">🔍</button>
+</div>
+
+<script>
+// 搜索引擎配置
+const searchEngines = {
+    baidu: {
+        name: "百度",
+        url: "https://www.baidu.com/s?wd=",
+        icon: "🔍"
+    },
+    google: {
+        name: "谷歌",
+        url: "https://www.google.com/search?q=",
+        icon: "🌐"
+    },
+    bing: {
+        name: "必应",
+        url: "https://www.bing.com/search?q=",
+        icon: "🔎"
+    },
+    site: {
+        name: "站内搜索",
+        url: null,
+        icon: "🏠"
+    },
+    github: {
+        name: "GitHub",
+        url: "https://github.com/search?q=",
+        icon: "💻"
+    },
+    bilibili: {
+        name: "哔哩哔哩",
+        url: "https://search.bilibili.com/all?keyword=",
+        icon: "📺"
+    },
+    youtube: {
+        name: "YouTube",
+        url: "https://www.youtube.com/results?search_query=",
+        icon: "🎬"
+    }
+};
+
+// 当前选择的搜索引擎
+let currentEngine = 'site';
+
+// 初始化搜索引擎选择
+function initSearchEngine() {
+    const engineButtons = document.querySelectorAll('.engine-btn');
+    
+    engineButtons.forEach(button => {
+        const engine = button.dataset.engine;
+        button.addEventListener('click', () => {
+            // 更新按钮状态
+            engineButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // 更新当前引擎
+            currentEngine = engine;
+            
+            // 更新输入框提示
+            const searchInput = document.getElementById('searchInput');
+            if (engine === 'site') {
+                searchInput.placeholder = "搜索网站内的内容...";
+            } else {
+                searchInput.placeholder = `使用${searchEngines[engine].name}搜索...`;
+            }
+            
+            // 自动聚焦到输入框
+            searchInput.focus();
+        });
+    });
+}
+
+// 执行搜索
+function performSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput.value.trim();
+    
+    if (!query) {
+        return;
+    }
+    
+    if (currentEngine === 'site') {
+        // 站内搜索
+        filterSites(query);
+    } else {
+        // 外部搜索引擎
+        const engine = searchEngines[currentEngine];
+        const searchUrl = engine.url + encodeURIComponent(query);
+        window.open(searchUrl, '_blank');
+        
+        // 清空输入框
+        searchInput.value = '';
+    }
+}
+
+// 站内搜索功能
+function filterSites(query = '') {
+    const cards = document.querySelectorAll('.site-card');
+    let visibleCount = 0;
+    
+    cards.forEach(card => {
+        const link = card.querySelector('a');
+        const desc = card.querySelector('.desc');
+        const text = (link.textContent + ' ' + desc.textContent).toLowerCase();
+        
+        if (!query || text.includes(query.toLowerCase())) {
+            card.style.display = '';
+            visibleCount++;
+            // 显示父分类
+            let parent = card.closest('.category');
+            if (parent && parent.classList.contains('collapsed')) {
+                parent.classList.remove('collapsed');
+            }
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // 更新统计
+    document.getElementById('stats').textContent = query 
+        ? `找到 ${visibleCount} 个相关网站 | 共收录 49 个网站`
+        : `共收录 49 个网站`;
+}
+
+// 分类折叠功能
+function toggleCategory(header) {
+    const category = header.parentElement;
+    category.classList.toggle('collapsed');
+}
+
+// 展开所有分类
+function expandAll() {
+    document.querySelectorAll('.category').forEach(cat => {
+        cat.classList.remove('collapsed');
+    });
+}
+
+// 折叠所有分类
+function collapseAll() {
+    document.querySelectorAll('.category').forEach(cat => {
+        cat.classList.add('collapsed');
+    });
+}
+
+// 聚焦搜索框
+function focusSearch() {
+    const searchInput = document.getElementById('searchInput');
+    searchInput.focus();
+    searchInput.select();
+}
+
+// 页面加载后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化搜索引擎选择
+    initSearchEngine();
+    
+    // 添加回车键搜索
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+    
+    // 添加键盘快捷键
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+F 聚焦搜索框
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            focusSearch();
+        }
+        // ESC 切换为站内搜索
+        if (e.key === 'Escape') {
+            // 切换到站内搜索
+            const siteBtn = document.querySelector('[data-engine="site"]');
+            if (siteBtn) {
+                siteBtn.click();
+            }
+            searchInput.value = '';
+            filterSites('');
+        }
+        // Ctrl+B 切换到百度
+        if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+            e.preventDefault();
+            const baiduBtn = document.querySelector('[data-engine="baidu"]');
+            if (baiduBtn) baiduBtn.click();
+        }
+        // Ctrl+G 切换到谷歌
+        if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
+            e.preventDefault();
+            const googleBtn = document.querySelector('[data-engine="google"]');
+            if (googleBtn) googleBtn.click();
+        }
+        // Ctrl+E 展开全部
+        if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+            e.preventDefault();
+            expandAll();
+        }
+        // Ctrl+C 折叠全部
+        if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+            e.preventDefault();
+            collapseAll();
+        }
+    });
+    
+    // 默认展开所有分类
+    expandAll();
+    
+    // 添加悬浮按钮平滑显示
+    setTimeout(() => {
+        document.querySelector('.float-buttons').style.opacity = '1';
+        document.querySelector('.float-buttons').style.transform = 'translateY(0)';
+    }, 300);
+});
+</script>
+</body>
+</html>
