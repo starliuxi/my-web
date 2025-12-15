@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>安全验证系统</title>
     <style>
         body {
@@ -9,19 +11,45 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: #e3f2fd; /* 浅蓝色背景 */
-            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
         }
 
         .login-container {
-            width: 450px;
+            width: 400px;
             padding: 40px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 10px 30px rgba(143, 188, 219, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff, #ff0000);
+            z-index: -1;
+            border-radius: 22px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .login-container.security-alert::before {
+            opacity: 0.3;
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         h2 {
@@ -29,49 +57,104 @@
             text-align: center;
             margin-bottom: 30px;
             font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .input-group {
             margin-bottom: 25px;
+            position: relative;
         }
 
         input {
             width: 100%;
-            padding: 14px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #b3d4fc;
-            border-radius: 8px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
             color: #2c3e50;
             font-size: 16px;
             transition: all 0.3s ease;
+            box-sizing: border-box;
         }
 
         input:focus {
             outline: none;
-            border-color: #64b5f6;
-            box-shadow: 0 0 8px rgba(100, 181, 246, 0.3);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .password-strength {
+            height: 4px;
+            margin-top: 8px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
         }
 
         button {
             width: 100%;
-            padding: 14px;
-            background: #64b5f6;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             color: white;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        button:hover {
-            background: #4a90e2;
+        button:hover:not(:disabled) {
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         button:disabled {
             background: #cccccc;
             cursor: not-allowed;
+            transform: none !important;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
         }
 
         #message {
@@ -80,6 +163,16 @@
             margin-top: 20px;
             min-height: 24px;
             font-weight: 500;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message-success {
+            color: #4CAF50 !important;
+        }
+
+        .message-warning {
+            color: #ff9800 !important;
         }
 
         .locked {
@@ -91,122 +184,527 @@
             25% { transform: translateX(10px); }
             75% { transform: translateX(-10px); }
         }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-element {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        .floating-element:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            top: 60%;
+            left: 80%;
+            animation-delay: -5s;
+        }
+
+        .floating-element:nth-child(3) {
+            top: 80%;
+            left: 20%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            100% {
+                transform: translate(100px, 100px) rotate(360deg);
+            }
+        }
+
+        .attempt-counter {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #666;
+            opacity: 0.7;
+        }
+
+        .security-indicator {
+            height: 4px;
+            background: #4CAF50;
+            border-radius: 2px;
+            margin-top: 10px;
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>🔒 安全访问验证</h2>
+    <!-- 浮动背景元素 -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <!-- 登录容器 -->
+    <div class="login-container" id="loginContainer">
+        <h2>
+            <span>🔒</span>
+            安全访问验证
+        </h2>
+        
         <div class="input-group">
             <input 
                 type="password" 
                 id="password" 
                 placeholder="🔑 请输入访问密码"
                 autocomplete="off"
+                spellcheck="false"
+                maxlength="50"
             >
+            <!-- 密码强度指示器 -->
+            <div class="password-strength" id="passwordStrength"></div>
         </div>
-        <button type="button" id="submitBtn" onclick="validate()">验证身份</button>
+        
+        <!-- 安全等级指示器 -->
+        <div class="security-indicator" id="securityIndicator" style="width: 100%;"></div>
+        
+        <button type="button" id="submitBtn">
+            <span id="btnText">验证身份</span>
+            <span id="btnLoading" style="display: none;">⏳ 验证中...</span>
+        </button>
+        
+        <div class="attempt-counter">
+            当前IP尝试次数: <span id="attemptCount">0</span> / 2
+        </div>
+        
         <div id="message"></div>
     </div>
 
     <script>
-        const CONFIG = {
-            correctPassword: "AV",         // 设置密码为AV
-            maxAttempts: 2,               // 错误尝试次数
-            lockTime: 1800                // 锁定时间1800秒=30分钟
+        // 增强混淆的配置
+        const SECURITY_CONFIG = {
+            // 密码编码（多层混淆）
+            encodedData: {
+                phase1: "58",
+                phase2: "76",
+                checksum: "134"  // 58+76=134
+            },
+            // 最大尝试次数
+            maxAttempts: 2,
+            // 锁定时间（秒）
+            lockTime: 1800,
+            // 是否启用调试检测
+            enableDebugDetection: true,
+            // 安全检查间隔（毫秒）
+            securityCheckInterval: 500
         };
 
-        let state = {
-            attempts: localStorage.getItem('loginAttempts') || 0,
-            lockUntil: localStorage.getItem('lockUntil') || 0
+        // 状态管理
+        const AppState = {
+            attempts: parseInt(localStorage.getItem('secAttempts')) || 0,
+            lockUntil: parseInt(localStorage.getItem('secLockUntil')) || 0,
+            sessionStart: Date.now(),
+            lastInputTime: 0,
+            isDebugging: false
         };
 
-        const passwordInput = document.getElementById('password');
-        const submitBtn = document.getElementById('submitBtn');
-        const message = document.getElementById('message');
+        // DOM 元素引用
+        const elements = {
+            passwordInput: document.getElementById('password'),
+            submitBtn: document.getElementById('submitBtn'),
+            btnText: document.getElementById('btnText'),
+            btnLoading: document.getElementById('btnLoading'),
+            message: document.getElementById('message'),
+            loginContainer: document.getElementById('loginContainer'),
+            attemptCount: document.getElementById('attemptCount'),
+            passwordStrength: document.getElementById('passwordStrength'),
+            securityIndicator: document.getElementById('securityIndicator')
+        };
 
-        // 初始化检查
-        checkLockStatus();
+        // ======================
+        // 安全工具函数
+        // ======================
+        
+        // 混淆的解码函数
+        function decodePassword() {
+            try {
+                // 多层解码
+                const phase1 = String.fromCharCode(
+                    parseInt(SECURITY_CONFIG.encodedData.phase1, 16) - 10
+                );
+                const phase2 = String.fromCharCode(
+                    parseInt(SECURITY_CONFIG.encodedData.phase2, 16) - 20
+                );
+                
+                // 验证校验和
+                const checkVal = parseInt(SECURITY_CONFIG.encodedData.phase1, 16) + 
+                                parseInt(SECURITY_CONFIG.encodedData.phase2, 16);
+                
+                if (checkVal !== parseInt(SECURITY_CONFIG.encodedData.checksum, 10)) {
+                    throw new Error('安全检查失败');
+                }
+                
+                return phase1 + phase2;
+            } catch (error) {
+                // 解码失败时返回空字符串
+                return "";
+            }
+        }
+
+        // 验证函数（增加混淆）
+        function obfuscatedValidate(input, correct) {
+            // 添加时间检查
+            const timeDiff = Date.now() - AppState.lastInputTime;
+            if (timeDiff < 100) return false; // 防止自动工具
+            
+            // 复杂验证逻辑
+            let isValid = true;
+            
+            // 长度检查
+            if (input.length !== correct.length) {
+                isValid = false;
+            } else {
+                // 逐字符比较
+                for (let i = 0; i < input.length; i++) {
+                    if (input.charCodeAt(i) !== correct.charCodeAt(i)) {
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+            
+            // 添加随机延迟防止时间攻击
+            const delay = Math.random() * 100 + 50;
+            return new Promise(resolve => {
+                setTimeout(() => resolve(isValid), delay);
+            });
+        }
+
+        // ======================
+        // 防调试功能
+        // ======================
+        
+        function setupAntiDebug() {
+            if (!SECURITY_CONFIG.enableDebugDetection) return;
+            
+            // 检测控制台打开
+            const consoleCheck = () => {
+                const widthThreshold = window.outerWidth - window.innerWidth > 160;
+                const heightThreshold = window.outerHeight - window.innerHeight > 160;
+                
+                if (widthThreshold || heightThreshold) {
+                    triggerSecurityAlert("检测到开发者工具");
+                }
+            };
+            
+            // 检测调试器
+            const debuggerCheck = () => {
+                const startTime = Date.now();
+                debugger;
+                const endTime = Date.now();
+                
+                if (endTime - startTime > 100) {
+                    triggerSecurityAlert("检测到调试模式");
+                    AppState.isDebugging = true;
+                }
+            };
+            
+            // 定期检查
+            setInterval(consoleCheck, 1000);
+            setInterval(debuggerCheck, SECURITY_CONFIG.securityCheckInterval);
+            
+            // 阻止F12、Ctrl+Shift+I等
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                    (e.ctrlKey && e.key === 'U')) {
+                    e.preventDefault();
+                    triggerSecurityAlert("快捷键已被禁用");
+                    return false;
+                }
+            });
+            
+            // 阻止右键菜单
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                triggerSecurityAlert("右键菜单已被禁用");
+                return false;
+            });
+        }
+
+        function triggerSecurityAlert(reason) {
+            elements.loginContainer.classList.add('security-alert');
+            showMessage(`⚠️ 安全警告: ${reason}`, 'warning');
+            
+            // 临时禁用表单
+            disableForm(true);
+            
+            setTimeout(() => {
+                elements.loginContainer.classList.remove('security-alert');
+                if (AppState.lockUntil < Date.now()) {
+                    disableForm(false);
+                }
+            }, 5000);
+        }
+
+        // ======================
+        // 主逻辑函数
+        // ======================
+        
+        function initialize() {
+            setupAntiDebug();
+            setupEventListeners();
+            checkLockStatus();
+            updateUI();
+            
+            // 控制台警告
+            console.log('%c⚠️ 安全区域 ⚠️', 'color: red; font-size: 20px; font-weight: bold;');
+            console.log('%c未经授权的访问尝试将被记录', 'color: orange;');
+        }
+
+        function setupEventListeners() {
+            elements.submitBtn.addEventListener('click', handleSubmit);
+            
+            elements.passwordInput.addEventListener('input', (e) => {
+                AppState.lastInputTime = Date.now();
+                updatePasswordStrength(e.target.value);
+            });
+            
+            elements.passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !elements.submitBtn.disabled) {
+                    handleSubmit();
+                }
+            });
+            
+            // 防止复制粘贴
+            elements.passwordInput.addEventListener('paste', (e) => {
+                e.preventDefault();
+                showMessage("⚠️ 为了安全，禁止粘贴", 'warning');
+            });
+            
+            elements.passwordInput.addEventListener('copy', (e) => {
+                e.preventDefault();
+                showMessage("⚠️ 禁止复制", 'warning');
+            });
+        }
+
+        async function handleSubmit() {
+            if (AppState.lockUntil > Date.now() || AppState.isDebugging) return;
+            
+            const input = elements.passwordInput.value.trim();
+            
+            if (!input) {
+                showMessage("请输入密码", 'warning');
+                shakeInput();
+                return;
+            }
+            
+            // 显示加载状态
+            showLoading(true);
+            
+            try {
+                // 获取正确密码
+                const correctPassword = decodePassword();
+                
+                // 验证密码
+                const isValid = await obfuscatedValidate(input, correctPassword);
+                
+                if (isValid) {
+                    await handleSuccess();
+                } else {
+                    await handleFailure();
+                }
+            } catch (error) {
+                showMessage("验证过程中出现错误", 'warning');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function handleSuccess() {
+            showMessage("✓ 验证成功，正在准备跳转...", 'success');
+            
+            // 更新安全指示器
+            elements.securityIndicator.style.background = '#4CAF50';
+            elements.securityIndicator.style.width = '100%';
+            
+            // 清除本地存储
+            localStorage.removeItem('secAttempts');
+            localStorage.removeItem('secLockUntil');
+            
+            // 混淆跳转URL
+            const redirectUrl = atob("aHR0cHM6Ly9taXNzYXYud3MvZG0xNC9jbg==");
+            
+            // 添加延迟并跳转
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            window.location.href = redirectUrl;
+        }
+
+        async function handleFailure() {
+            AppState.attempts++;
+            localStorage.setItem('secAttempts', AppState.attempts);
+            
+            updateUI();
+            
+            if (AppState.attempts >= SECURITY_CONFIG.maxAttempts) {
+                const lockUntil = Date.now() + SECURITY_CONFIG.lockTime * 1000;
+                AppState.lockUntil = lockUntil;
+                localStorage.setItem('secLockUntil', lockUntil);
+                
+                lockAccount();
+                startCountdown();
+            } else {
+                const remaining = SECURITY_CONFIG.maxAttempts - AppState.attempts;
+                showMessage(`✗ 密码错误 (剩余尝试次数: ${remaining})`, 'error');
+                shakeInput();
+            }
+            
+            // 清空输入框
+            elements.passwordInput.value = '';
+        }
 
         function checkLockStatus() {
             const now = Date.now();
-            if (state.lockUntil > now) {
-                const remaining = Math.ceil((state.lockUntil - now) / 1000);
+            if (AppState.lockUntil > now) {
+                const remaining = Math.ceil((AppState.lockUntil - now) / 1000);
                 showLockMessage(remaining);
                 disableForm(true);
                 startCountdown();
             }
         }
 
-        function validate() {
-            const input = passwordInput.value;
-            
-            if (state.lockUntil > Date.now()) return;
-
-            if (input === CONFIG.correctPassword) {
-                successRedirect();
-            } else {
-                handleWrongPassword();
-            }
+        function lockAccount() {
+            disableForm(true);
+            showMessage("⛔ 账户已被锁定", 'error');
+            elements.securityIndicator.style.background = '#f44336';
+            elements.securityIndicator.style.width = '10%';
         }
 
-        function successRedirect() {
-            message.textContent = "✓ 验证成功，正在跳转...";
-            message.style.color = "#4CAF50";
-            localStorage.removeItem('loginAttempts');
-            localStorage.removeItem('lockUntil');
-            setTimeout(() => {
-                window.location.href = "https://missav.ws/dm14/cn"; // 目标网站
-            }, 1500);
-        }
-
-        function handleWrongPassword() {
-            passwordInput.classList.add('locked');
-            setTimeout(() => passwordInput.classList.remove('locked'), 500);
-            
-            state.attempts++;
-            localStorage.setItem('loginAttempts', state.attempts);
-
-            if (state.attempts >= CONFIG.maxAttempts) {
-                const lockUntil = Date.now() + CONFIG.lockTime * 1000;
-                state.lockUntil = lockUntil;
-                localStorage.setItem('lockUntil', lockUntil);
+        function startCountdown() {
+            const countdownInterval = setInterval(() => {
+                const remaining = Math.ceil((AppState.lockUntil - Date.now()) / 1000);
                 
-                showLockMessage(CONFIG.lockTime);
-                disableForm(true);
-                startCountdown();
-            } else {
-                const remaining = CONFIG.maxAttempts - state.attempts;
-                message.textContent = `✗ 密码错误 (剩余尝试次数: ${remaining})`;
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    localStorage.removeItem('secAttempts');
+                    localStorage.removeItem('secLockUntil');
+                    disableForm(false);
+                    showMessage('');
+                    AppState.attempts = 0;
+                    updateUI();
+                    elements.securityIndicator.style.width = '100%';
+                    elements.securityIndicator.style.background = '#4CAF50';
+                } else {
+                    showLockMessage(remaining);
+                    
+                    // 更新安全指示器
+                    const progress = (remaining / SECURITY_CONFIG.lockTime) * 100;
+                    elements.securityIndicator.style.width = `${100 - progress}%`;
+                    elements.securityIndicator.style.background = 
+                        `linear-gradient(90deg, #f44336 ${100 - progress}%, #4CAF50 ${100 - progress}%)`;
+                }
+            }, 1000);
+        }
+
+        // ======================
+        // UI 相关函数
+        // ======================
+        
+        function showMessage(text, type = 'error') {
+            elements.message.textContent = text;
+            elements.message.className = '';
+            
+            switch(type) {
+                case 'success':
+                    elements.message.classList.add('message-success');
+                    break;
+                case 'warning':
+                    elements.message.classList.add('message-warning');
+                    break;
+                case 'error':
+                default:
+                    // 默认红色
+                    break;
             }
         }
 
         function showLockMessage(seconds) {
             const minutes = Math.floor(seconds / 60);
             const remainingSeconds = seconds % 60;
-            message.innerHTML = `⛔ 账户已锁定<br>${minutes}分${remainingSeconds}秒后可重试`;
+            showMessage(
+                `⛔ 账户已锁定\n${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')} 后可重试`,
+                'warning'
+            );
+        }
+
+        function showLoading(loading) {
+            if (loading) {
+                elements.btnText.style.display = 'none';
+                elements.btnLoading.style.display = 'inline';
+                elements.submitBtn.disabled = true;
+            } else {
+                elements.btnText.style.display = 'inline';
+                elements.btnLoading.style.display = 'none';
+                elements.submitBtn.disabled = elements.passwordInput.disabled;
+            }
         }
 
         function disableForm(disabled) {
-            passwordInput.disabled = disabled;
-            submitBtn.disabled = disabled;
+            elements.passwordInput.disabled = disabled;
+            elements.submitBtn.disabled = disabled;
         }
 
-        function startCountdown() {
-            const timer = setInterval(() => {
-                const remaining = Math.ceil((state.lockUntil - Date.now()) / 1000);
-                
-                if (remaining <= 0) {
-                    clearInterval(timer);
-                    localStorage.removeItem('loginAttempts');
-                    localStorage.removeItem('lockUntil');
-                    disableForm(false);
-                    message.textContent = '';
-                    state.attempts = 0;
-                } else {
-                    showLockMessage(remaining);
-                }
-            }, 1000);
+        function shakeInput() {
+            elements.passwordInput.classList.add('locked');
+            setTimeout(() => {
+                elements.passwordInput.classList.remove('locked');
+            }, 500);
         }
+
+        function updateUI() {
+            elements.attemptCount.textContent = AppState.attempts;
+            
+            // 更新安全指示器颜色
+            if (AppState.attempts === 0) {
+                elements.securityIndicator.style.background = '#4CAF50';
+            } else if (AppState.attempts === 1) {
+                elements.securityIndicator.style.background = '#ff9800';
+            } else {
+                elements.securityIndicator.style.background = '#f44336';
+            }
+        }
+
+        function updatePasswordStrength(password) {
+            const strength = password.length > 0 ? Math.min(password.length * 10, 100) : 0;
+            elements.passwordStrength.style.width = `${strength}%`;
+            
+            // 根据长度改变颜色
+            if (password.length === 0) {
+                elements.passwordStrength.style.background = 'transparent';
+            } else if (password.length < 2) {
+                elements.passwordStrength.style.background = '#f44336';
+            } else if (password.length < 4) {
+                elements.passwordStrength.style.background = '#ff9800';
+            } else {
+                elements.passwordStrength.style.background = '#4CAF50';
+            }
+        }
+
+        // ======================
+        // 初始化
+        // ======================
+        document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
 </html>
