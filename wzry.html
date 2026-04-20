@@ -3,119 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>农场浇水</title>
+    <title>农场浇水计算器</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: linear-gradient(145deg, #aad18e 0%, #7fb064 100%); min-height: 100vh; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; padding: 16px; }
+        body { 
+            background: linear-gradient(145deg, #aad18e 0%, #7fb064 100%); 
+            min-height: 100vh; 
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; 
+            padding: 16px; 
+        }
         .container { max-width: 700px; margin: 0 auto; }
-        .card { background: #fffef7; border-radius: 48px; overflow: hidden; box-shadow: 0 20px 35px rgba(0,0,0,0.2); margin-bottom: 20px; }
+        .card { 
+            background: #fffef7; 
+            border-radius: 48px; 
+            overflow: hidden; 
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2); 
+            margin-bottom: 20px; 
+        }
         .content { padding: 20px; }
-        textarea { width: 100%; padding: 14px; font-family: monospace; font-size: 0.85rem; border: 2px solid #e2d2a0; border-radius: 28px; background: #fefcf5; resize: vertical; margin-bottom: 16px; }
-        .btn-group { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; position: relative; }
-        button { flex: 1; background: #477e3c; border: none; padding: 12px; font-size: 1rem; font-weight: bold; color: white; border-radius: 60px; cursor: pointer; min-width: 80px; }
+        textarea { 
+            width: 100%; 
+            padding: 14px; 
+            font-family: monospace; 
+            font-size: 0.85rem; 
+            border: 2px solid #e2d2a0; 
+            border-radius: 28px; 
+            background: #fefcf5; 
+            resize: vertical; 
+            margin-bottom: 16px; 
+        }
+        .btn-group { 
+            display: flex; 
+            gap: 12px; 
+            margin-bottom: 20px; 
+            flex-wrap: wrap; 
+        }
+        button { 
+            flex: 1; 
+            background: #477e3c; 
+            border: none; 
+            padding: 12px; 
+            font-size: 1rem; 
+            font-weight: bold; 
+            color: white; 
+            border-radius: 60px; 
+            cursor: pointer; 
+            min-width: 80px;
+            transition: all 0.2s;
+        }
         button:active { transform: scale(0.97); background: #366b2c; }
         .reset-btn { background: #b87c42; }
         .sort-btn { background: #2c6e28; }
-        .stats { background: transparent; padding: 0; margin-bottom: 8px; text-align: right; font-weight: 400; font-size: 0.7rem; color: #8a7a5a; }
+        .copy-btn { background: #5b8c4e; }
+        
+        .local-time-panel {
+            background: linear-gradient(135deg, #5f9e4b 0%, #477e3c 100%);
+            border-radius: 28px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+        .local-time-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+        .local-date-value {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            text-align: right;
+        }
+        
+        .stats { 
+            background: transparent; 
+            padding: 0; 
+            margin-bottom: 8px; 
+            text-align: right; 
+            font-weight: 400; 
+            font-size: 0.7rem; 
+            color: #8a7a5a; 
+        }
         .zone-list { display: flex; flex-direction: column; gap: 12px; }
-        .zone-item { background: #f2ecda; border-radius: 28px; overflow: hidden; border-left: 6px solid #5f9e4b; }
-        .zone-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #faf3df; cursor: pointer; font-weight: 700; font-size: 1.1rem; flex-wrap: wrap; gap: 8px; }
-        .zone-name { color: #2a5c24; }
-        .crop-hour { background: #477e3c; color: white; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: bold; }
-        .next-water { background: #ffd966; color: #2a5c24; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: bold; }
-        .zone-badge { background: #87ceeb; color: #2a5c24; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: bold; }
-        .zone-detail { padding: 0 16px 16px; display: none; border-top: 1px solid #ddd0ae; background: #fffcf0; }
+        .zone-item { 
+            background: #f2ecda; 
+            border-radius: 28px; 
+            overflow: hidden; 
+            border-left: 6px solid #5f9e4b; 
+        }
+        .zone-header { 
+            display: flex; 
+            align-items: center; 
+            padding: 10px 16px; 
+            background: #faf3df; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 1rem; 
+            flex-wrap: wrap; 
+            gap: 6px; 
+        }
+        .zone-name { 
+            color: #2a5c24; 
+            margin-right: 2px;
+        }
+        .crop-hour { 
+            background: #477e3c; 
+            color: white; 
+            padding: 4px 8px; 
+            border-radius: 40px; 
+            font-size: 0.65rem; 
+            font-weight: bold; 
+        }
+        .next-water { 
+            background: #ffd966; 
+            color: #2a5c24; 
+            padding: 4px 8px; 
+            border-radius: 40px; 
+            font-size: 0.65rem; 
+            font-weight: bold; 
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .zone-badge { 
+            background: #87ceeb; 
+            color: #2a5c24; 
+            padding: 4px 8px; 
+            border-radius: 40px; 
+            font-size: 0.65rem; 
+            font-weight: bold; 
+        }
+        .zone-detail { 
+            padding: 0 16px 12px; 
+            display: none; 
+            border-top: 1px solid #ddd0ae; 
+            background: #fffcf0; 
+        }
         .zone-detail.open { display: block; }
-        .schedule-item { background: white; border-radius: 20px; padding: 10px 14px; margin-top: 10px; font-size: 0.8rem; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; }
-        .schedule-time { font-family: monospace; font-weight: 700; color: #1b4a16; }
-        .harvest-badge { background: #ffd966; color: #2a5c24; padding: 2px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: bold; }
-        .footnote { font-size: 0.65rem; text-align: center; color: #9e8a60; margin-top: 16px; padding-top: 12px; border-top: 1px solid #e7dcbe; }
+        .info-panel {
+            background: #e8f5e0;
+            border-radius: 20px;
+            padding: 12px;
+            margin-bottom: 12px;
+            font-size: 0.8rem;
+        }
+        
+        .current-water-status {
+            padding: 8px 0 4px;
+            margin-bottom: 8px;
+        }
+        .water-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .water-time-text {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #2a5c24;
+            min-width: 65px;
+        }
+        .water-bar {
+            flex: 1;
+            height: 8px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .water-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4a90d9, #6bb5ff);
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        .water-percent {
+            font-weight: bold;
+            color: #2a5c24;
+            font-size: 0.85rem;
+            min-width: 45px;
+            text-align: right;
+        }
+        
+        .water-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .water-card {
+            background: white;
+            border-radius: 16px;
+            padding: 12px 14px;
+            border-left: 4px solid #5f9e4b;
+        }
+        .water-card.kill {
+            border-left-color: #ff6b6b;
+            background: #fff3cd;
+        }
+        .water-card.current {
+            border-left-color: #4a90d9;
+            background: #e8f0fe;
+            box-shadow: 0 2px 8px rgba(74,144,217,0.2);
+        }
+        
+        .water-row1 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .water-title {
+            font-weight: 700;
+            color: #2a5c24;
+            font-size: 0.9rem;
+        }
+        .water-wait {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .wait-badge {
+            background: #4a90d9;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .wait-badge.urgent {
+            background: #ff6b6b;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .next-tag {
+            background: #ffd966;
+            color: #2a5c24;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: bold;
+        }
+        .kill-tag {
+            background: #ff6b6b;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: bold;
+        }
+        
+        .water-big-time {
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: #1b4a16;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        
+        .water-row3 {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+        }
+        .water-amount {
+            color: #5f9e4b;
+            font-weight: 500;
+        }
+        .water-reduce {
+            color: #d4a017;
+            font-weight: 500;
+        }
+        
+        .water-row4 {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.7rem;
+            color: #666;
+        }
+        
+        .footnote { 
+            font-size: 0.65rem; 
+            text-align: center; 
+            color: #9e8a60; 
+            margin-top: 16px; 
+            padding-top: 12px; 
+            border-top: 1px solid #e7dcbe; 
+        }
+        .highlight {
+            background: #ffeaa7;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+        
+        .formula-note { display: none; }
+        
+        .url-hint {
+            font-size: 0.6rem;
+            color: #8a7a5a;
+            text-align: center;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="card">
         <div class="content">
-            <textarea id="rawData" rows="6" placeholder="格式：区号：成熟时间 ┆ 干涸时间 (剩余水分)
-例如：531区：17:39┆21:25 (08h10m)"></textarea>
+            <div class="local-time-panel">
+                <div class="local-time-value" id="localTime">--:--:--</div>
+                <div>
+                    <div class="local-date-value" id="localDate">----年--月--日</div>
+                    <div class="local-date-value" id="localWeekday">星期-</div>
+                </div>
+            </div>
+            
+            <textarea id="rawData" rows="6" placeholder=""></textarea>
             <div class="btn-group">
                 <button id="calcBtn">计算</button>
-                <button id="sortBtn" class="sort-btn">↓最近↑</button>
+                <button id="sortBtn" class="sort-btn">↓ 按浇水时间</button>
+                <button id="copyUrlBtn" class="copy-btn">📋 复制链接</button>
                 <button id="clearBtn" class="reset-btn">清空</button>
             </div>
             <div id="resultArea"><div class="stats"></div></div>
+            <div class="url-hint" id="urlHint"></div>
             <div class="footnote">
-                💧 剩余水分 → 作物：32h / 16h / 8h / 1h<br>
-                ⚡ 斩杀点 = 播种 + 11/15 × 总时长
+                💧 32H→满水10h40m | 16H→5h20m | 8H→2h40m | 1H→20m<br>
+                ⚡ 浇水减少时间 = 加水量 ÷ 4
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let currentZones = [];
-    let currentRawData = "";
+    const CROP_CONFIG = {
+        32: { hours: 32, waterMinutes: 640 },
+        16: { hours: 16, waterMinutes: 320 },
+        8:  { hours: 8,  waterMinutes: 160 },
+        1:  { hours: 1,  waterMinutes: 20 }
+    };
 
-    function parseRemainingWater(str) {
-        let match = str.match(/\((\d+)h(\d+)m\)/);
-        if (match) {
-            return parseInt(match[1]) * 3600 + parseInt(match[2]) * 60;
+    let currentZones = [];
+    let currentNowMinutes = 0;
+    let showPastWaters = false;
+
+    function updateLocalTime() {
+        let now = new Date();
+        let year = now.getFullYear();
+        let month = (now.getMonth() + 1).toString().padStart(2, '0');
+        let day = now.getDate().toString().padStart(2, '0');
+        let hour = now.getHours().toString().padStart(2, '0');
+        let minute = now.getMinutes().toString().padStart(2, '0');
+        let second = now.getSeconds().toString().padStart(2, '0');
+        
+        let weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+        let weekday = weekdays[now.getDay()];
+        
+        document.getElementById('localTime').textContent = `${hour}:${minute}:${second}`;
+        document.getElementById('localDate').textContent = `${year}年${month}月${day}日`;
+        document.getElementById('localWeekday').textContent = weekday;
+        
+        currentNowMinutes = now.getHours() * 60 + now.getMinutes();
+    }
+    
+    setInterval(updateLocalTime, 1000);
+    updateLocalTime();
+
+    // 从URL读取data参数
+    function getUrlData() {
+        let params = new URLSearchParams(window.location.search);
+        let data = params.get('data');
+        if (data) {
+            try {
+                return decodeURIComponent(data);
+            } catch (e) {
+                return data;
+            }
         }
-        match = str.match(/\((\d+)h\)/);
-        if (match) return parseInt(match[1]) * 3600;
         return null;
     }
 
-    function getCropTypeAndWaterDuration(remainingSec) {
-        if (remainingSec > 5*3600 + 20*60) return { hour: 32, waterSec: 10*3600 + 40*60 };
-        if (remainingSec > 2*3600 + 40*60) return { hour: 16, waterSec: 5*3600 + 20*60 };
-        if (remainingSec > 20*60) return { hour: 8, waterSec: 2*3600 + 40*60 };
-        return { hour: 1, waterSec: 20*60 };
+    // 生成分享链接
+    function generateShareUrl(rawData) {
+        let baseUrl = window.location.origin + window.location.pathname;
+        let encoded = encodeURIComponent(rawData);
+        return baseUrl + '?data=' + encoded;
+    }
+
+    function parseRemainingWater(str) {
+        let match = str.match(/\((\d+)h(\d+)m\)/);
+        if (match) return parseInt(match[1]) * 60 + parseInt(match[2]);
+        match = str.match(/\((\d+)h\)/);
+        if (match) return parseInt(match[1]) * 60;
+        match = str.match(/\((\d+)m\)/);
+        if (match) return parseInt(match[1]);
+        return null;
+    }
+
+    function getCropType(remainingMinutes) {
+        if (remainingMinutes > 320) return CROP_CONFIG[32];
+        if (remainingMinutes > 160) return CROP_CONFIG[16];
+        if (remainingMinutes > 20) return CROP_CONFIG[8];
+        return CROP_CONFIG[1];
     }
 
     function extractTimeFromText(text) {
         let match = text.match(/(\d{1,2})[：:](\d{2})/);
-        if (match) {
-            let hour = match[1].padStart(2, '0');
-            let minute = match[2];
-            return hour + ":" + minute;
-        }
-        match = text.match(/(\d{4})/);
-        if (match) {
-            return match[1].substring(0,2) + ":" + match[1].substring(2,4);
-        }
+        if (match) return match[1].padStart(2, '0') + ":" + match[2];
         return null;
     }
 
-    function timeStrToSeconds(timeStr) {
+    function timeStrToMinutes(timeStr) {
         let parts = timeStr.trim().split(':');
         if (parts.length !== 2) return NaN;
-        let hour = parseInt(parts[0], 10);
-        let minute = parseInt(parts[1], 10);
-        if (isNaN(hour) || isNaN(minute)) return NaN;
-        let now = new Date();
-        let target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0);
-        if (target < now && (hour < 12 || target.getDate() === now.getDate())) {
-            target.setDate(target.getDate() + 1);
-        }
-        return Math.floor(target.getTime() / 1000);
+        return parseInt(parts[0]) * 60 + parseInt(parts[1]);
     }
 
-    function secondsToTimeStr(sec) {
-        let d = new Date(sec * 1000);
-        let month = (d.getMonth() + 1).toString().padStart(2, '0');
-        let day = d.getDate().toString().padStart(2, '0');
-        let hour = d.getHours().toString().padStart(2, '0');
-        let minute = d.getMinutes().toString().padStart(2, '0');
-        return `${month}-${day} ${hour}:${minute}`;
+    function minutesToTimeStr(minutes) {
+        let normalized = minutes % 1440;
+        if (normalized < 0) normalized += 1440;
+        let hour = Math.floor(normalized / 60);
+        let minute = normalized % 60;
+        return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
     }
 
-    function formatDurationNoSeconds(sec) {
-        let hrs = Math.floor(sec / 3600);
-        let mins = Math.floor((sec % 3600) / 60);
-        if (hrs > 0) return `${hrs}h${mins}m`;
-        if (mins > 0) return `${mins}m`;
-        return `0m`;
+    function formatDuration(minutes) {
+        if (minutes < 0) minutes = 0;
+        let hrs = Math.floor(minutes / 60);
+        let mins = minutes % 60;
+        if (hrs > 0 && mins > 0) return `${hrs}h${mins}m`;
+        if (hrs > 0) return `${hrs}h`;
+        return `${mins}m`;
+    }
+
+    function formatDurationLong(minutes) {
+        if (minutes < 0) minutes = 0;
+        let hrs = Math.floor(minutes / 60);
+        let mins = minutes % 60;
+        if (hrs > 0 && mins > 0) return `${hrs}小时${mins}分`;
+        if (hrs > 0) return `${hrs}小时`;
+        return `${mins}分钟`;
     }
 
     function parseZoneData(rawText) {
@@ -126,17 +465,16 @@
             if (line === '') continue;
             let match = line.match(/^([0-9A-Za-z]+区)\s*[：:]\s*(.+?)\s*[─┆|]\s*(.+?)\s*(\([^)]+\))/);
             if (match) {
-                let matureText = match[2];
-                let dryText = match[3];
-                let matureTime = extractTimeFromText(matureText);
-                let dryTime = extractTimeFromText(dryText);
+                let matureTime = extractTimeFromText(match[2]);
+                let dryTime = extractTimeFromText(match[3]);
                 if (matureTime && dryTime) {
                     zones.push({
                         zoneName: match[1],
                         matureTime: matureTime,
                         dryTime: dryTime,
                         remainingStr: match[4],
-                        matureSec: timeStrToSeconds(matureTime)
+                        matureMinutes: timeStrToMinutes(matureTime),
+                        dryMinutes: timeStrToMinutes(dryTime)
                     });
                 }
             }
@@ -144,91 +482,248 @@
         return zones;
     }
 
-    function getNextWaterTime(waters) {
-        let now = Math.floor(Date.now() / 1000);
-        for (let i = 0; i < waters.length; i++) {
-            if (waters[i].time > now) {
-                return waters[i].time;
-            }
-        }
-        return null;
+    function calculateCurrentWater(zone, crop) {
+        let dryMinutes = zone.dryMinutes;
+        let waterMinutes = crop.waterMinutes;
+        let nowMinutes = currentNowMinutes;
+        let fullWaterMinutes = dryMinutes - waterMinutes;
+        if (fullWaterMinutes < 0) fullWaterMinutes += 1440;
+        let elapsed = nowMinutes - fullWaterMinutes;
+        if (elapsed < 0) elapsed += 1440;
+        let currentWater = Math.max(0, Math.min(waterMinutes, waterMinutes - elapsed));
+        return {
+            currentWater: currentWater,
+            maxWater: waterMinutes,
+            percent: Math.round((currentWater / waterMinutes) * 100)
+        };
     }
 
-    function computeSchedule(zone) {
-        let matureSec = timeStrToSeconds(zone.matureTime);
-        let drySec = timeStrToSeconds(zone.dryTime);
-        if (isNaN(matureSec) || isNaN(drySec)) return null;
-
-        let remainingSec = parseRemainingWater(zone.remainingStr);
-        if (remainingSec === null) return null;
-
-        let crop = getCropTypeAndWaterDuration(remainingSec);
-        let waterSec = crop.waterSec;
-
-        let firstWaterSec = drySec - waterSec;
-        let plantSec = firstWaterSec;
-        let totalSec = matureSec - plantSec;
-        if (totalSec <= 0) {
-            let adjusted = matureSec;
-            if (matureSec < plantSec) adjusted += 86400;
-            totalSec = adjusted - plantSec;
-            if (totalSec <= 0) return null;
-        }
-
-        let killOffset = totalSec * (11 / 15);
-        let lastWaterSec = plantSec + killOffset;
-
-        let waters = [];
-        let lastTime = plantSec;
+    function calculateWaterPlan(zone) {
+        let matureMinutes = zone.matureMinutes;
+        let dryMinutes = zone.dryMinutes;
+        let remainingMinutes = parseRemainingWater(zone.remainingStr);
+        if (!remainingMinutes) return null;
+        
+        let crop = getCropType(remainingMinutes);
+        let waterMinutes = crop.waterMinutes;
+        let firstWaterMinutes = dryMinutes - waterMinutes;
+        if (firstWaterMinutes < 0) firstWaterMinutes += 1440;
+        let originalMature = firstWaterMinutes + crop.hours * 60;
+        
+        let waterPlan = [];
+        let currentWaterTime = firstWaterMinutes;
+        let currentMatureTime = originalMature;
+        
         while (true) {
-            let nextWater = lastTime + waterSec;
-            if (nextWater + 5 >= lastWaterSec) break;
-            if (nextWater > plantSec) {
-                waters.push({ time: nextWater, note: `第${waters.length+2}次浇水` });
-            }
-            lastTime = nextWater;
+            let waterAmount = waterMinutes;
+            let reduceTime = Math.floor(waterAmount / 4);
+            let newMatureTime = currentMatureTime - reduceTime;
+            waterPlan.push({
+                count: waterPlan.length + 1,
+                waterTime: currentWaterTime,
+                waterTimeStr: minutesToTimeStr(currentWaterTime),
+                waterAmount: waterAmount,
+                reduceTime: reduceTime,
+                matureAfter: newMatureTime,
+                matureAfterStr: minutesToTimeStr(newMatureTime),
+                dryAfter: currentWaterTime + waterMinutes,
+                dryAfterStr: minutesToTimeStr(currentWaterTime + waterMinutes),
+                isKill: false
+            });
+            let nextFullWaterTime = currentWaterTime + waterMinutes;
+            if (nextFullWaterTime >= newMatureTime) break;
+            currentWaterTime = nextFullWaterTime;
+            currentMatureTime = newMatureTime;
+            if (waterPlan.length > 20) break;
         }
-        waters.push({ time: lastWaterSec, note: `收获`, isHarvest: true });
-
-        return { plantSec, matureSec, totalSec, killOffset, lastWaterSec, waters, cropHour: crop.hour, waterDuration: waterSec };
+        
+        let lastWater = waterPlan[waterPlan.length - 1];
+        let timeToMature = lastWater.matureAfter - lastWater.waterTime;
+        if (timeToMature < 0) timeToMature += 1440;
+        if (timeToMature > 0) {
+            let killWaterAmount = Math.floor(timeToMature * 4 / 5);
+            let killWaterTime = lastWater.waterTime + killWaterAmount;
+            let killReduce = Math.floor(killWaterAmount / 4);
+            waterPlan.push({
+                count: waterPlan.length + 1,
+                waterTime: killWaterTime,
+                waterTimeStr: minutesToTimeStr(killWaterTime),
+                waterAmount: killWaterAmount,
+                reduceTime: killReduce,
+                matureAfter: 0,
+                matureAfterStr: "✨ 立即成熟",
+                dryAfter: killWaterTime + waterMinutes,
+                dryAfterStr: minutesToTimeStr(killWaterTime + waterMinutes),
+                isKill: true
+            });
+        }
+        
+        let nowMinutes = currentNowMinutes;
+        let nextWater = waterPlan.find(w => w.waterTime > nowMinutes);
+        let futureWaters = waterPlan.filter(w => w.waterTime > nowMinutes).length;
+        let pastWaters = waterPlan.filter(w => w.waterTime <= nowMinutes).length;
+        let waterStatus = calculateCurrentWater(zone, crop);
+        
+        return {
+            cropHours: crop.hours,
+            waterMinutes: waterMinutes,
+            firstWaterTime: firstWaterMinutes,
+            firstWaterStr: minutesToTimeStr(firstWaterMinutes),
+            originalMatureStr: minutesToTimeStr(originalMature),
+            waterPlan: waterPlan,
+            nextWater: nextWater,
+            futureWaters: futureWaters,
+            pastWaters: pastWaters,
+            totalWaters: waterPlan.length,
+            waterStatus: waterStatus
+        };
     }
 
-    function formatNextWaterTime(nextWaterSec) {
-        if (!nextWaterSec) return "无";
-        let d = new Date((nextWaterSec - 120) * 1000);
-        let hour = d.getHours().toString().padStart(2, '0');
-        let minute = d.getMinutes().toString().padStart(2, '0');
-        return `${hour}:${minute}`;
+    function getWaterItemStatus(waterTime, nextWaterTime) {
+        let nowMinutes = currentNowMinutes;
+        if (waterTime < nowMinutes) return 'past';
+        if (waterTime === nextWaterTime) return 'current';
+        return 'future';
+    }
+
+    function getWaitTimeText(waterTime) {
+        let nowMinutes = currentNowMinutes;
+        let diff = waterTime - nowMinutes;
+        if (diff < 0) diff += 1440;
+        if (diff <= 0) return '现在';
+        if (diff < 60) return `${diff}m`;
+        let hrs = Math.floor(diff / 60);
+        let mins = diff % 60;
+        if (mins > 0) return `${hrs}h${mins}m`;
+        return `${hrs}h`;
     }
 
     function renderZones(zones) {
-        let statsHtml = '';
+        if (!zones.length) {
+            return '<div class="stats"></div><div style="text-align:center;padding:20px;color:#8a7a5a;">暂无数据</div>';
+        }
+        
+        let statsHtml = `<div class="stats">共 ${zones.length} 块地 | 更新于 ${new Date().toLocaleTimeString()}</div>`;
         let listHtml = '<div class="zone-list">';
+        
         for (let i = 0; i < zones.length; i++) {
             let zone = zones[i];
-            let schedule = computeSchedule(zone);
+            let plan = calculateWaterPlan(zone);
             let zoneId = `zone_${i}_${Date.now()}`;
-            if (!schedule) {
-                listHtml += `<div class="zone-item"><div class="zone-header" onclick="toggleZone('${zoneId}')"><span class="zone-name">⚠️ ${zone.zoneName}</span><span class="zone-badge">解析错误</span></div><div id="${zoneId}" class="zone-detail"><div class="schedule-item" style="color:#b13e2a;">时间格式或剩余水分解析失败</div></div></div>`;
+            
+            if (!plan) {
+                listHtml += `<div class="zone-item"><div class="zone-header" onclick="toggleZone('${zoneId}')"><span class="zone-name">⚠️ ${zone.zoneName}</span><span class="zone-badge">解析错误</span></div><div id="${zoneId}" class="zone-detail"><div style="padding:16px;color:#b13e2a;">数据格式错误</div></div></div>`;
                 continue;
             }
-            let nextWaterSec = getNextWaterTime(schedule.waters);
-            let nextWaterDisplay = formatNextWaterTime(nextWaterSec);
-            let scheduleHtml = `<div style="margin-top:8px; font-size:0.75rem; background:#e7ddc0; border-radius:20px; padding:8px 12px;">
-                <div>💧 储水量: ${formatDurationNoSeconds(schedule.waterDuration)}</div>
-                <div>⏱️ 总时长: ${formatDurationNoSeconds(schedule.totalSec)} &nbsp;|&nbsp; ⚡ 斩杀点: ${formatDurationNoSeconds(schedule.killOffset)}</div>
-                <div>🌾 成熟时间: ${secondsToTimeStr(schedule.matureSec)}</div>
-            </div>`;
-            for (let w of schedule.waters) {
-                let badge = w.isHarvest ? '<span class="harvest-badge">🎉 收获</span>' : '';
-                scheduleHtml += `<div class="schedule-item"><div><div class="schedule-time">${secondsToTimeStr(w.time)}</div><div class="schedule-note">${w.note}</div></div>${badge}</div>`;
+            
+            let nextWaterDisplay = plan.nextWater ? plan.nextWater.waterTimeStr : '已完成';
+            let nextWaterType = plan.nextWater && plan.nextWater.isKill ? '⚡斩杀' : '💧';
+            let ws = plan.waterStatus;
+            
+            let waterStatusHtml = `
+                <div class="current-water-status">
+                    <div class="water-progress">
+                        <span class="water-time-text">${formatDurationLong(ws.currentWater)}</span>
+                        <div class="water-bar"><div class="water-bar-fill" style="width:${ws.percent}%;"></div></div>
+                        <span class="water-percent">${ws.percent}%</span>
+                    </div>
+                </div>
+            `;
+            
+            let timelineHtml = '<div class="water-timeline">';
+            let nextWaterTime = plan.nextWater ? plan.nextWater.waterTime : -1;
+            let nowMinutes = currentNowMinutes;
+            let displayPlan = showPastWaters ? plan.waterPlan : plan.waterPlan.filter(w => w.waterTime > nowMinutes);
+            
+            if (displayPlan.length === 0) {
+                timelineHtml += '<div style="text-align:center;padding:16px;color:#999;font-size:0.8rem;">✨ 所有浇水已完成</div>';
+            } else {
+                for (let w of displayPlan) {
+                    let status = getWaterItemStatus(w.waterTime, nextWaterTime);
+                    let killClass = w.isKill ? 'kill' : '';
+                    let statusClass = status === 'current' ? 'current' : '';
+                    let waitTime = getWaitTimeText(w.waterTime);
+                    let isUrgent = (w.waterTime - nowMinutes + 1440) % 1440 < 30;
+                    
+                    let titleHtml = w.isKill ? 
+                        `<span class="water-title">第${w.count}次 · 斩杀</span>` : 
+                        `<span class="water-title">第${w.count}次浇水</span>`;
+                    
+                    let waitHtml = '';
+                    if (status === 'current') {
+                        waitHtml = `<span class="wait-badge ${isUrgent ? 'urgent' : ''}">⏳ ${waitTime}</span><span class="next-tag">🔔 下次</span>`;
+                    } else {
+                        waitHtml = `<span class="wait-badge" style="background:#999;">${waitTime}</span>`;
+                    }
+                    
+                    if (w.isKill) {
+                        waitHtml += '<span class="kill-tag">⚡斩杀</span>';
+                    }
+                    
+                    let waterAmountDisplay = w.isKill ? 
+                        `${formatDuration(w.waterAmount)} (斩杀)` : 
+                        `${formatDuration(w.waterAmount)} (满水)`;
+                    
+                    timelineHtml += `
+                        <div class="water-card ${killClass} ${statusClass}">
+                            <div class="water-row1">
+                                ${titleHtml}
+                                <div class="water-wait">${waitHtml}</div>
+                            </div>
+                            <div class="water-big-time">${w.waterTimeStr}</div>
+                            <div class="water-row3">
+                                <span class="water-amount">💧 加水 ${waterAmountDisplay}</span>
+                                <span class="water-reduce">⬇️ 减少 ${formatDuration(w.reduceTime)}</span>
+                            </div>
+                            <div class="water-row4">
+                                <span class="mature-time">🌾 成熟 ${w.isKill ? '✨立即' : w.matureAfterStr}</span>
+                                <span class="dry-time">⏰ 干涸 ${w.dryAfterStr}</span>
+                            </div>
+                        </div>
+                    `;
+                }
             }
-            listHtml += `<div class="zone-item"><div class="zone-header" onclick="toggleZone('${zoneId}')"><span class="zone-name">🌾 ${zone.zoneName}</span><span class="crop-hour">🌱 ${schedule.cropHour}H</span><span class="next-water">⏰: ${nextWaterDisplay}</span><span class="zone-badge">💧 ${schedule.waters.length}次</span></div><div id="${zoneId}" class="zone-detail">${scheduleHtml}</div></div>`;
+            timelineHtml += '</div>';
+            
+            let detailHtml = `
+                <div class="info-panel">
+                    <div style="margin-bottom:8px;"><strong>🌱 ${plan.cropHours}小时作物</strong> | 满水时长: ${formatDurationLong(plan.waterMinutes)}</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;">
+                        <div>💧 首次:<br><span class="highlight">${plan.firstWaterStr}</span></div>
+                        <div>⏰ 干涸:<br><span class="highlight">${zone.dryTime}</span></div>
+                        <div>🌾 原始:<br><span class="highlight">${plan.originalMatureStr}</span></div>
+                        <div>📊 剩余:<br><span class="highlight">${plan.futureWaters}次</span></div>
+                    </div>
+                </div>
+                ${waterStatusHtml}
+                ${timelineHtml}
+            `;
+            
+            let urgentBadge = '';
+            if (plan.nextWater) {
+                let timeDiff = (plan.nextWater.waterTime - currentNowMinutes + 1440) % 1440;
+                if (timeDiff < 30) {
+                    urgentBadge = '<span style="background:#ff6b6b;color:white;padding:2px 6px;border-radius:20px;font-size:0.55rem;">⚠️</span>';
+                }
+            }
+            
+            let waterCountDisplay = plan.futureWaters > 0 ? `💧${plan.futureWaters}` : '✅';
+            
+            listHtml += `<div class="zone-item">
+                <div class="zone-header" onclick="toggleZone('${zoneId}')">
+                    <span class="zone-name">🌾${zone.zoneName}</span>
+                    <span class="crop-hour">${plan.cropHours}H</span>
+                    <span class="next-water">⏰${nextWaterDisplay}</span>
+                    ${urgentBadge}
+                    <span class="zone-badge">${waterCountDisplay}</span>
+                </div>
+                <div id="${zoneId}" class="zone-detail">
+                    ${detailHtml}
+                </div>
+            </div>`;
         }
+        
         listHtml += '</div>';
-        if (zones.length) {
-            statsHtml = `<div class="stats">${zones.length}</div>`;
-        }
         return statsHtml + listHtml;
     }
 
@@ -237,40 +732,38 @@
         if (el) el.classList.toggle('open');
     };
 
-    function sortByMatureTime(zones) {
-        let now = Math.floor(Date.now() / 1000);
+    function sortByNextWaterTime(zones) {
         return [...zones].sort((a, b) => {
-            let aSec = timeStrToSeconds(a.matureTime);
-            let bSec = timeStrToSeconds(b.matureTime);
-            let aDiff = aSec - now;
-            let bDiff = bSec - now;
-            if (aDiff < 0) aDiff += 86400;
-            if (bDiff < 0) bDiff += 86400;
-            return aDiff - bDiff;
+            let planA = calculateWaterPlan(a);
+            let planB = calculateWaterPlan(b);
+            if (!planA || !planB) return 0;
+            
+            let nowMins = currentNowMinutes;
+            let timeA = planA.nextWater ? planA.nextWater.waterTime : 99999;
+            let timeB = planB.nextWater ? planB.nextWater.waterTime : 99999;
+            
+            let diffA = timeA - nowMins;
+            if (diffA < 0) diffA += 1440;
+            let diffB = timeB - nowMins;
+            if (diffB < 0) diffB += 1440;
+            
+            return diffA - diffB;
         });
     }
 
-    // 从 URL 参数读取数据并自动解码
-    function getUrlParam(name) {
-        let urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(name);
-    }
-
-    let encodedData = getUrlParam('data');
-    if (encodedData) {
-        let decodedData = decodeURIComponent(encodedData);
-        document.getElementById('rawData').value = decodedData;
-        currentZones = parseZoneData(decodedData);
-        document.getElementById('resultArea').innerHTML = renderZones(currentZones);
+    function loadFromUrlAndCalculate() {
+        let urlData = getUrlData();
+        if (urlData) {
+            document.getElementById('rawData').value = urlData;
+            currentZones = parseZoneData(urlData);
+            document.getElementById('resultArea').innerHTML = renderZones(currentZones);
+            document.getElementById('urlHint').textContent = '✅ 已从链接加载数据';
+        }
     }
 
     document.getElementById('calcBtn').onclick = () => {
         let raw = document.getElementById('rawData').value;
-        if (!raw.trim()) {
-            document.getElementById('resultArea').innerHTML = '<div class="stats"></div>';
-            return;
-        }
-        currentRawData = raw;
+        if (!raw.trim()) return;
         currentZones = parseZoneData(raw);
         document.getElementById('resultArea').innerHTML = renderZones(currentZones);
     };
@@ -278,26 +771,54 @@
     document.getElementById('sortBtn').onclick = () => {
         if (!currentZones.length) {
             let raw = document.getElementById('rawData').value;
-            if (!raw.trim()) {
-                document.getElementById('resultArea').innerHTML = '<div class="stats"></div>';
-                return;
-            }
+            if (!raw.trim()) return;
             currentZones = parseZoneData(raw);
         }
         if (currentZones.length) {
-            let sortedZones = sortByMatureTime(currentZones);
-            document.getElementById('resultArea').innerHTML = renderZones(sortedZones);
-        } else {
-            document.getElementById('resultArea').innerHTML = '<div class="stats"></div>';
+            let sorted = sortByNextWaterTime(currentZones);
+            document.getElementById('resultArea').innerHTML = renderZones(sorted);
         }
+    };
+
+    document.getElementById('copyUrlBtn').onclick = () => {
+        let raw = document.getElementById('rawData').value;
+        if (!raw.trim()) {
+            alert('请先输入数据');
+            return;
+        }
+        let url = generateShareUrl(raw);
+        navigator.clipboard.writeText(url).then(() => {
+            document.getElementById('urlHint').textContent = '📋 链接已复制！';
+            setTimeout(() => {
+                document.getElementById('urlHint').textContent = '';
+            }, 2000);
+        }).catch(() => {
+            prompt('手动复制以下链接:', url);
+        });
     };
 
     document.getElementById('clearBtn').onclick = () => {
         document.getElementById('rawData').value = '';
         document.getElementById('resultArea').innerHTML = '<div class="stats"></div>';
         currentZones = [];
-        currentRawData = "";
+        document.getElementById('urlHint').textContent = '';
     };
+
+    // 页面加载时自动从URL读取数据
+    window.addEventListener('load', () => {
+        let urlData = getUrlData();
+        if (urlData) {
+            document.getElementById('rawData').value = urlData;
+            currentZones = parseZoneData(urlData);
+            document.getElementById('resultArea').innerHTML = renderZones(currentZones);
+            document.getElementById('urlHint').textContent = '✅ 已从链接加载 ' + currentZones.length + ' 块地';
+        } else {
+            let example = ``;
+            document.getElementById('rawData').value = example;
+            currentZones = parseZoneData(example);
+            document.getElementById('resultArea').innerHTML = renderZones(currentZones);
+        }
+    });
 </script>
 </body>
 </html>
