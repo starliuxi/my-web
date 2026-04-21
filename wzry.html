@@ -7,7 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            background: linear-gradient(145deg, #aad18e 0%, #7fb064 100%); 
+            background: linear-gradient(145deg, #aad18e 0%, #7fb06e 100%); 
             min-height: 100vh; 
             font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; 
             padding: 16px; 
@@ -54,7 +54,6 @@
         button:active { transform: scale(0.97); background: #366b2c; }
         .reset-btn { background: #b87c42; }
         .sort-btn { background: #2c6e28; }
-        .copy-btn { background: #5b8c4e; }
         
         .local-time-panel {
             background: linear-gradient(135deg, #5f9e4b 0%, #477e3c 100%);
@@ -116,7 +115,7 @@
             padding: 4px 8px; 
             border-radius: 40px; 
             font-size: 0.65rem; 
-            font-weight: bold; 
+            font-weight: bold;
         }
         .next-water { 
             background: #ffd966; 
@@ -124,10 +123,15 @@
             padding: 4px 8px; 
             border-radius: 40px; 
             font-size: 0.65rem; 
-            font-weight: bold; 
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 2px;
+        }
+        .next-water.done {
+            background: #2ecc71; /* 绿色底色 */
+            color: #2a5c24;      /* 恢复原深色文字 */
+            font-weight: bold;
         }
         .zone-badge { 
             background: #87ceeb; 
@@ -135,7 +139,7 @@
             padding: 4px 8px; 
             border-radius: 40px; 
             font-size: 0.65rem; 
-            font-weight: bold; 
+            font-weight: bold;
         }
         .zone-detail { 
             padding: 0 16px 12px; 
@@ -144,22 +148,12 @@
             background: #fffcf0; 
         }
         .zone-detail.open { display: block; }
-        .info-panel {
-            background: #e8f5e0;
-            border-radius: 20px;
-            padding: 12px;
-            margin-bottom: 12px;
-            font-size: 0.8rem;
-        }
         
-        .current-water-status {
-            padding: 8px 0 4px;
-            margin-bottom: 8px;
-        }
         .water-progress {
             display: flex;
             align-items: center;
             gap: 8px;
+            padding: 10px 0;
         }
         .water-time-text {
             font-size: 0.9rem;
@@ -170,15 +164,15 @@
         .water-bar {
             flex: 1;
             height: 8px;
-            background: #ddd;
+            background: #ece7d7;
             border-radius: 10px;
             overflow: hidden;
         }
         .water-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #4a90d9, #6bb5ff);
+            background: linear-gradient(90deg, #4a90d9, #5ab0ff);
             border-radius: 10px;
-            transition: width 0.3s;
+            transition: width 0.3s ease;
         }
         .water-percent {
             font-weight: bold;
@@ -200,6 +194,9 @@
             border-radius: 16px;
             padding: 12px 14px;
             border-left: 4px solid #5f9e4b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         .water-card.kill {
             border-left-color: #ff6b6b;
@@ -211,21 +208,22 @@
             box-shadow: 0 2px 8px rgba(74,144,217,0.2);
         }
         
-        .water-row1 {
+        .water-left {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 6px;
+            flex-direction: column;
+            gap: 4px;
         }
+        .water-right {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-end;
+        }
+        
         .water-title {
             font-weight: 700;
             color: #2a5c24;
             font-size: 0.9rem;
-        }
-        .water-wait {
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
         .wait-badge {
             background: #4a90d9;
@@ -234,6 +232,7 @@
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: bold;
+            align-self: flex-start;
         }
         .wait-badge.urgent {
             background: #ff6b6b;
@@ -243,22 +242,6 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
         }
-        .next-tag {
-            background: #ffd966;
-            color: #2a5c24;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: bold;
-        }
-        .kill-tag {
-            background: #ff6b6b;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: bold;
-        }
         
         .water-big-time {
             font-family: monospace;
@@ -266,31 +249,17 @@
             font-size: 1.8rem;
             color: #1b4a16;
             line-height: 1.2;
-            margin-bottom: 4px;
         }
         
-        .water-row3 {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 6px;
-            font-size: 0.75rem;
-        }
         .water-amount {
             color: #5f9e4b;
             font-weight: 500;
+            font-size: 0.85rem;
         }
         .water-reduce {
             color: #d4a017;
             font-weight: 500;
-        }
-        
-        .water-row4 {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            font-size: 0.7rem;
-            color: #666;
+            font-size: 0.85rem;
         }
         
         .footnote { 
@@ -300,21 +269,7 @@
             margin-top: 16px; 
             padding-top: 12px; 
             border-top: 1px solid #e7dcbe; 
-        }
-        .highlight {
-            background: #ffeaa7;
-            padding: 2px 6px;
-            border-radius: 12px;
-            font-weight: bold;
-        }
-        
-        .formula-note { display: none; }
-        
-        .url-hint {
-            font-size: 0.6rem;
-            color: #8a7a5a;
-            text-align: center;
-            margin-top: 4px;
+            display: none;
         }
     </style>
 </head>
@@ -330,495 +285,280 @@
                 </div>
             </div>
             
-            <textarea id="rawData" rows="6" placeholder=""></textarea>
+            <textarea id="rawData" rows="6" placeholder="粘贴你的分区数据"></textarea>
             <div class="btn-group">
                 <button id="calcBtn">计算</button>
-                <button id="sortBtn" class="sort-btn">↓ 按浇水时间</button>
-                <button id="copyUrlBtn" class="copy-btn">📋 复制链接</button>
+                <button id="sortBtn" class="sort-btn">浇水时间</button>
                 <button id="clearBtn" class="reset-btn">清空</button>
             </div>
             <div id="resultArea"><div class="stats"></div></div>
-            <div class="url-hint" id="urlHint"></div>
             <div class="footnote">
-                💧 32H→满水10h40m | 16H→5h20m | 8H→2h40m | 1H→20m<br>
-                ⚡ 浇水减少时间 = 加水量 ÷ 4
+                <!-- 💧 32H→10h40m | 16H→5h20m | 8H→2h40m | 1H→20m<br>
+                ⚡ 减少时间 = 加水量 ÷ 4<br>
+                📅 T=明天  R=后天 -->
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const CROP_CONFIG = {
-        32: { hours: 32, waterMinutes: 640 },
-        16: { hours: 16, waterMinutes: 320 },
-        8:  { hours: 8,  waterMinutes: 160 },
-        1:  { hours: 1,  waterMinutes: 20 }
-    };
+const CROP_CONFIG = {
+  1:  { name: '1小时',  fullWater: 20,   reduce: 5 },
+  8:  { name: '8小时',  fullWater: 160,  reduce: 40 },
+  16: { name: '16小时', fullWater: 320,  reduce: 80 },
+  32: { name: '32小时', fullWater: 640,  reduce: 160 }
+};
 
-    let currentZones = [];
-    let currentNowMinutes = 0;
-    let showPastWaters = false;
+let currentZones = [];
+let zoneRealData = {};
+let now = new Date();
 
-    function updateLocalTime() {
-        let now = new Date();
-        let year = now.getFullYear();
-        let month = (now.getMonth() + 1).toString().padStart(2, '0');
-        let day = now.getDate().toString().padStart(2, '0');
-        let hour = now.getHours().toString().padStart(2, '0');
-        let minute = now.getMinutes().toString().padStart(2, '0');
-        let second = now.getSeconds().toString().padStart(2, '0');
-        
-        let weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-        let weekday = weekdays[now.getDay()];
-        
-        document.getElementById('localTime').textContent = `${hour}:${minute}:${second}`;
-        document.getElementById('localDate').textContent = `${year}年${month}月${day}日`;
-        document.getElementById('localWeekday').textContent = weekday;
-        
-        currentNowMinutes = now.getHours() * 60 + now.getMinutes();
+function updateLocalTime() {
+  now = new Date();
+  let h = now.getHours().toString().padStart(2, '0');
+  let m = now.getMinutes().toString().padStart(2, '0');
+  let s = now.getSeconds().toString().padStart(2, '0');
+  let Y = now.getFullYear();
+  let M = (now.getMonth()+1).toString().padStart(2, '0');
+  let D = now.getDate().toString().padStart(2, '0');
+  let wd = '日一二三四五六'[now.getDay()];
+  document.getElementById('localTime').textContent = `${h}:${m}:${s}`;
+  document.getElementById('localDate').textContent = `${Y}年${M}月${D}`;
+  document.getElementById('localWeekday').textContent = `星期${wd}`;
+}
+
+function parseTimeWithPrefix(timeStr) {
+    timeStr = timeStr.trim().toUpperCase();
+    let prefix = '';
+    let dayOffset = 0;
+    if (timeStr.startsWith('T')) { dayOffset = 1; timeStr = timeStr.substring(1); }
+    else if (timeStr.startsWith('R')) { dayOffset = 2; timeStr = timeStr.substring(1); }
+    let match = timeStr.match(/(\d{1,2})[:：](\d{2})/);
+    if (!match) return { min: 0, offset: 0 };
+    let h = parseInt(match[1], 10);
+    let m = parseInt(match[2], 10);
+    return { min: h * 60 + m, offset: dayOffset };
+}
+
+function toHm(m) {
+  m = Math.max(0, m);
+  let h = Math.floor(m / 60);
+  let mm = Math.floor(m % 60);
+  return `${h}h${mm}m`;
+}
+
+function parseRemaining(str) {
+  let match = str.match(/\((\d+)h(\d+)m\)/i) || str.match(/\((\d+)m\)/i) || str.match(/\((\d+)h\)/i);
+  if (!match) return 0;
+  if (match[1] && match[2]) return parseInt(match[1])*60 + parseInt(match[2]);
+  if (match[1] && str.includes('h')) return parseInt(match[1])*60;
+  return parseInt(match[1]);
+}
+
+function getCrop(r) {
+  if (r > 320) return CROP_CONFIG[32];
+  if (r > 160) return CROP_CONFIG[16];
+  if (r > 20) return CROP_CONFIG[8];
+  return CROP_CONFIG[1];
+}
+
+function parseLines(text) {
+  let zones = [];
+  let lines = text.split(/\n/).filter(l => l.trim() !== '' && !l.includes('————'));
+  for (let line of lines) {
+    line = line.trim();
+    let m = line.match(/^(.+?区)\s*[：:]\s*(.+?)\s*[─┆|]\s*(.+?)\s*(\(.+?\))/);
+    if (m) {
+      let name = m[1];
+      let mtRaw = m[2].trim();
+      let dtRaw = m[3].trim();
+      let rem = m[4];
+      let mtInfo = parseTimeWithPrefix(mtRaw);
+      let dtInfo = parseTimeWithPrefix(dtRaw);
+      zones.push({
+        name, rem,
+        mtMin: mtInfo.min, mtOffset: mtInfo.offset,
+        dtMin: dtInfo.min, dtOffset: dtInfo.offset
+      });
     }
-    
-    setInterval(updateLocalTime, 1000);
-    updateLocalTime();
+  }
+  return zones;
+}
 
-    // 从URL读取data参数
-    function getUrlData() {
-        let params = new URLSearchParams(window.location.search);
-        let data = params.get('data');
-        if (data) {
-            try {
-                return decodeURIComponent(data);
-            } catch (e) {
-                return data;
-            }
-        }
-        return null;
+function calculateRealPlan(M, R, W, fullReduce) {
+  let plan = [];
+  let t = 0, cm = M, cr = R;
+  while (true) {
+    let K = Math.floor((4 * cm - W + cr) / 5);
+    K = Math.max(0, K);
+    let kill = t + K;
+    let dry = t + cr;
+    if (kill <= dry) {
+      let add = W - cr + K;
+      let red = Math.floor(add / 4);
+      plan.push({ type: 'kill', t: kill, add, red });
+      break;
     }
+    plan.push({ type: 'water', t: dry, add: W, red: fullReduce });
+    cm -= fullReduce + (dry - t);
+    cr = W; t = dry;
+    if (plan.length > 20) break;
+  }
+  return plan;
+}
 
-    // 生成分享链接
-    function generateShareUrl(rawData) {
-        let baseUrl = window.location.origin + window.location.pathname;
-        let encoded = encodeURIComponent(rawData);
-        return baseUrl + '?data=' + encoded;
-    }
+function getTargetDate(min, offset) {
+    let d = new Date();
+    d.setHours(Math.floor(min/60), min%60, 0, 0);
+    d.setDate(d.getDate() + offset);
+    return d;
+}
 
-    function parseRemainingWater(str) {
-        let match = str.match(/\((\d+)h(\d+)m\)/);
-        if (match) return parseInt(match[1]) * 60 + parseInt(match[2]);
-        match = str.match(/\((\d+)h\)/);
-        if (match) return parseInt(match[1]) * 60;
-        match = str.match(/\((\d+)m\)/);
-        if (match) return parseInt(match[1]);
-        return null;
-    }
+function computeZoneReal(zone) {
+  let nowMs = now.getTime();
+  let dryDate = getTargetDate(zone.dtMin, zone.dtOffset);
+  let dryMs = dryDate.getTime();
+  let R0 = parseRemaining(zone.rem);
+  let crop = getCrop(R0);
+  let W = crop.fullWater;
+  let fullReduce = crop.reduce;
 
-    function getCropType(remainingMinutes) {
-        if (remainingMinutes > 320) return CROP_CONFIG[32];
-        if (remainingMinutes > 160) return CROP_CONFIG[16];
-        if (remainingMinutes > 20) return CROP_CONFIG[8];
-        return CROP_CONFIG[1];
-    }
+  let fullTimeMs = dryMs - W * 60 * 1000;
+  let elapsedMs = nowMs - fullTimeMs;
+  let currentWaterSec = Math.max(0, W * 60 - elapsedMs / 1000);
+  let currentWaterMin = currentWaterSec / 60;
+  let pct = Math.min(100, Math.max(0, currentWaterMin / W * 100));
 
-    function extractTimeFromText(text) {
-        let match = text.match(/(\d{1,2})[：:](\d{2})/);
-        if (match) return match[1].padStart(2, '0') + ":" + match[2];
-        return null;
-    }
+  let matureDate = getTargetDate(zone.mtMin, zone.mtOffset);
+  let M = Math.max(0, (matureDate.getTime() - nowMs) / 60000);
+  
+  let initR = Math.min(W, Math.max(0, currentWaterMin));
+  let steps = calculateRealPlan(M, initR, W, fullReduce);
 
-    function timeStrToMinutes(timeStr) {
-        let parts = timeStr.trim().split(':');
-        if (parts.length !== 2) return NaN;
-        return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-    }
+  let events = steps.map(e => {
+    let absMs = nowMs + e.t * 60 * 1000;
+    let d = new Date(absMs);
+    let hh = d.getHours().toString().padStart(2, '0');
+    let mm = d.getMinutes().toString().padStart(2, '0');
+    return { ...e, timeStr: `${hh}:${mm}`, absMs };
+  });
 
-    function minutesToTimeStr(minutes) {
-        let normalized = minutes % 1440;
-        if (normalized < 0) normalized += 1440;
-        let hour = Math.floor(normalized / 60);
-        let minute = normalized % 60;
-        return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-    }
+  let future = events.filter(e => e.absMs > nowMs);
+  let next = future[0];
 
-    function formatDuration(minutes) {
-        if (minutes < 0) minutes = 0;
-        let hrs = Math.floor(minutes / 60);
-        let mins = minutes % 60;
-        if (hrs > 0 && mins > 0) return `${hrs}h${mins}m`;
-        if (hrs > 0) return `${hrs}h`;
-        return `${mins}m`;
-    }
+  return {
+    crop, W, currentWaterMin, pct,
+    events, future, next, count: future.length
+  };
+}
 
-    function formatDurationLong(minutes) {
-        if (minutes < 0) minutes = 0;
-        let hrs = Math.floor(minutes / 60);
-        let mins = minutes % 60;
-        if (hrs > 0 && mins > 0) return `${hrs}小时${mins}分`;
-        if (hrs > 0) return `${hrs}小时`;
-        return `${mins}分钟`;
-    }
+function render() {
+  let zones = currentZones;
+  if (!zones.length) {
+    document.getElementById('resultArea').innerHTML = `<div class="stats"></div><div style="text-align:center;padding:20px;color:#888;">暂无数据</div>`;
+    return;
+  }
+  let html = `<div class="stats">共${zones.length}块地</div><div class="zone-list">`;
+  zones.forEach((z, i) => {
+    let id = `z${i}`;
+    let d = computeZoneReal(z);
+    zoneRealData[id] = d;
 
-    function parseZoneData(rawText) {
-        let lines = rawText.split(/\r?\n/);
-        let zones = [];
-        for (let line of lines) {
-            line = line.trim();
-            if (line === '') continue;
-            let match = line.match(/^([0-9A-Za-z]+区)\s*[：:]\s*(.+?)\s*[─┆|]\s*(.+?)\s*(\([^)]+\))/);
-            if (match) {
-                let matureTime = extractTimeFromText(match[2]);
-                let dryTime = extractTimeFromText(match[3]);
-                if (matureTime && dryTime) {
-                    zones.push({
-                        zoneName: match[1],
-                        matureTime: matureTime,
-                        dryTime: dryTime,
-                        remainingStr: match[4],
-                        matureMinutes: timeStrToMinutes(matureTime),
-                        dryMinutes: timeStrToMinutes(dryTime)
-                    });
-                }
-            }
-        }
-        return zones;
-    }
+    let nextStr = d.next ? d.next.timeStr : '已完成';
+    let doneClass = d.next ? '' : 'done';
+    let urgent = d.next && (d.next.absMs - now.getTime()) < 30 * 60 * 1000;
+    let badge = urgent ? '<span style="background:red;color:white;padding:2px 6px;border-radius:12px;font-size:10px;">急</span>' : '';
 
-    function calculateCurrentWater(zone, crop) {
-        let dryMinutes = zone.dryMinutes;
-        let waterMinutes = crop.waterMinutes;
-        let nowMinutes = currentNowMinutes;
-        let fullWaterMinutes = dryMinutes - waterMinutes;
-        if (fullWaterMinutes < 0) fullWaterMinutes += 1440;
-        let elapsed = nowMinutes - fullWaterMinutes;
-        if (elapsed < 0) elapsed += 1440;
-        let currentWater = Math.max(0, Math.min(waterMinutes, waterMinutes - elapsed));
-        return {
-            currentWater: currentWater,
-            maxWater: waterMinutes,
-            percent: Math.round((currentWater / waterMinutes) * 100)
-        };
-    }
+    html += `
+    <div class="zone-item">
+      <div class="zone-header" onclick="toggle('${id}')">
+        <span class="zone-name">${z.name}</span>
+        <span class="crop-hour">${d.crop.name.replace('小时','')}H</span>
+        <span class="next-water ${doneClass}">${nextStr}</span>
+        <span class="zone-badge">${d.count}次</span>
+        ${badge}
+      </div>
+      <div id="${id}" class="zone-detail">
+        <div class="water-progress">
+          <span id="wtext-${id}" class="water-time-text">--</span>
+          <div class="water-bar"><div id="wbar-${id}" class="water-bar-fill"></div></div>
+          <span id="wpct2-${id}" class="water-percent">--</span>
+        </div>
+        <div class="water-timeline">`;
 
-    function calculateWaterPlan(zone) {
-        let matureMinutes = zone.matureMinutes;
-        let dryMinutes = zone.dryMinutes;
-        let remainingMinutes = parseRemainingWater(zone.remainingStr);
-        if (!remainingMinutes) return null;
-        
-        let crop = getCropType(remainingMinutes);
-        let waterMinutes = crop.waterMinutes;
-        let firstWaterMinutes = dryMinutes - waterMinutes;
-        if (firstWaterMinutes < 0) firstWaterMinutes += 1440;
-        let originalMature = firstWaterMinutes + crop.hours * 60;
-        
-        let waterPlan = [];
-        let currentWaterTime = firstWaterMinutes;
-        let currentMatureTime = originalMature;
-        
-        while (true) {
-            let waterAmount = waterMinutes;
-            let reduceTime = Math.floor(waterAmount / 4);
-            let newMatureTime = currentMatureTime - reduceTime;
-            waterPlan.push({
-                count: waterPlan.length + 1,
-                waterTime: currentWaterTime,
-                waterTimeStr: minutesToTimeStr(currentWaterTime),
-                waterAmount: waterAmount,
-                reduceTime: reduceTime,
-                matureAfter: newMatureTime,
-                matureAfterStr: minutesToTimeStr(newMatureTime),
-                dryAfter: currentWaterTime + waterMinutes,
-                dryAfterStr: minutesToTimeStr(currentWaterTime + waterMinutes),
-                isKill: false
-            });
-            let nextFullWaterTime = currentWaterTime + waterMinutes;
-            if (nextFullWaterTime >= newMatureTime) break;
-            currentWaterTime = nextFullWaterTime;
-            currentMatureTime = newMatureTime;
-            if (waterPlan.length > 20) break;
-        }
-        
-        let lastWater = waterPlan[waterPlan.length - 1];
-        let timeToMature = lastWater.matureAfter - lastWater.waterTime;
-        if (timeToMature < 0) timeToMature += 1440;
-        if (timeToMature > 0) {
-            let killWaterAmount = Math.floor(timeToMature * 4 / 5);
-            let killWaterTime = lastWater.waterTime + killWaterAmount;
-            let killReduce = Math.floor(killWaterAmount / 4);
-            waterPlan.push({
-                count: waterPlan.length + 1,
-                waterTime: killWaterTime,
-                waterTimeStr: minutesToTimeStr(killWaterTime),
-                waterAmount: killWaterAmount,
-                reduceTime: killReduce,
-                matureAfter: 0,
-                matureAfterStr: "✨ 立即成熟",
-                dryAfter: killWaterTime + waterMinutes,
-                dryAfterStr: minutesToTimeStr(killWaterTime + waterMinutes),
-                isKill: true
-            });
-        }
-        
-        let nowMinutes = currentNowMinutes;
-        let nextWater = waterPlan.find(w => w.waterTime > nowMinutes);
-        let futureWaters = waterPlan.filter(w => w.waterTime > nowMinutes).length;
-        let pastWaters = waterPlan.filter(w => w.waterTime <= nowMinutes).length;
-        let waterStatus = calculateCurrentWater(zone, crop);
-        
-        return {
-            cropHours: crop.hours,
-            waterMinutes: waterMinutes,
-            firstWaterTime: firstWaterMinutes,
-            firstWaterStr: minutesToTimeStr(firstWaterMinutes),
-            originalMatureStr: minutesToTimeStr(originalMature),
-            waterPlan: waterPlan,
-            nextWater: nextWater,
-            futureWaters: futureWaters,
-            pastWaters: pastWaters,
-            totalWaters: waterPlan.length,
-            waterStatus: waterStatus
-        };
-    }
-
-    function getWaterItemStatus(waterTime, nextWaterTime) {
-        let nowMinutes = currentNowMinutes;
-        if (waterTime < nowMinutes) return 'past';
-        if (waterTime === nextWaterTime) return 'current';
-        return 'future';
-    }
-
-    function getWaitTimeText(waterTime) {
-        let nowMinutes = currentNowMinutes;
-        let diff = waterTime - nowMinutes;
-        if (diff < 0) diff += 1440;
-        if (diff <= 0) return '现在';
-        if (diff < 60) return `${diff}m`;
-        let hrs = Math.floor(diff / 60);
-        let mins = diff % 60;
-        if (mins > 0) return `${hrs}h${mins}m`;
-        return `${hrs}h`;
-    }
-
-    function renderZones(zones) {
-        if (!zones.length) {
-            return '<div class="stats"></div><div style="text-align:center;padding:20px;color:#8a7a5a;">暂无数据</div>';
-        }
-        
-        let statsHtml = `<div class="stats">共 ${zones.length} 块地 | 更新于 ${new Date().toLocaleTimeString()}</div>`;
-        let listHtml = '<div class="zone-list">';
-        
-        for (let i = 0; i < zones.length; i++) {
-            let zone = zones[i];
-            let plan = calculateWaterPlan(zone);
-            let zoneId = `zone_${i}_${Date.now()}`;
-            
-            if (!plan) {
-                listHtml += `<div class="zone-item"><div class="zone-header" onclick="toggleZone('${zoneId}')"><span class="zone-name">⚠️ ${zone.zoneName}</span><span class="zone-badge">解析错误</span></div><div id="${zoneId}" class="zone-detail"><div style="padding:16px;color:#b13e2a;">数据格式错误</div></div></div>`;
-                continue;
-            }
-            
-            let nextWaterDisplay = plan.nextWater ? plan.nextWater.waterTimeStr : '已完成';
-            let nextWaterType = plan.nextWater && plan.nextWater.isKill ? '⚡斩杀' : '💧';
-            let ws = plan.waterStatus;
-            
-            let waterStatusHtml = `
-                <div class="current-water-status">
-                    <div class="water-progress">
-                        <span class="water-time-text">${formatDurationLong(ws.currentWater)}</span>
-                        <div class="water-bar"><div class="water-bar-fill" style="width:${ws.percent}%;"></div></div>
-                        <span class="water-percent">${ws.percent}%</span>
-                    </div>
-                </div>
-            `;
-            
-            let timelineHtml = '<div class="water-timeline">';
-            let nextWaterTime = plan.nextWater ? plan.nextWater.waterTime : -1;
-            let nowMinutes = currentNowMinutes;
-            let displayPlan = showPastWaters ? plan.waterPlan : plan.waterPlan.filter(w => w.waterTime > nowMinutes);
-            
-            if (displayPlan.length === 0) {
-                timelineHtml += '<div style="text-align:center;padding:16px;color:#999;font-size:0.8rem;">✨ 所有浇水已完成</div>';
-            } else {
-                for (let w of displayPlan) {
-                    let status = getWaterItemStatus(w.waterTime, nextWaterTime);
-                    let killClass = w.isKill ? 'kill' : '';
-                    let statusClass = status === 'current' ? 'current' : '';
-                    let waitTime = getWaitTimeText(w.waterTime);
-                    let isUrgent = (w.waterTime - nowMinutes + 1440) % 1440 < 30;
-                    
-                    let titleHtml = w.isKill ? 
-                        `<span class="water-title">第${w.count}次 · 斩杀</span>` : 
-                        `<span class="water-title">第${w.count}次浇水</span>`;
-                    
-                    let waitHtml = '';
-                    if (status === 'current') {
-                        waitHtml = `<span class="wait-badge ${isUrgent ? 'urgent' : ''}">⏳ ${waitTime}</span><span class="next-tag">🔔 下次</span>`;
-                    } else {
-                        waitHtml = `<span class="wait-badge" style="background:#999;">${waitTime}</span>`;
-                    }
-                    
-                    if (w.isKill) {
-                        waitHtml += '<span class="kill-tag">⚡斩杀</span>';
-                    }
-                    
-                    let waterAmountDisplay = w.isKill ? 
-                        `${formatDuration(w.waterAmount)} (斩杀)` : 
-                        `${formatDuration(w.waterAmount)} (满水)`;
-                    
-                    timelineHtml += `
-                        <div class="water-card ${killClass} ${statusClass}">
-                            <div class="water-row1">
-                                ${titleHtml}
-                                <div class="water-wait">${waitHtml}</div>
-                            </div>
-                            <div class="water-big-time">${w.waterTimeStr}</div>
-                            <div class="water-row3">
-                                <span class="water-amount">💧 加水 ${waterAmountDisplay}</span>
-                                <span class="water-reduce">⬇️ 减少 ${formatDuration(w.reduceTime)}</span>
-                            </div>
-                            <div class="water-row4">
-                                <span class="mature-time">🌾 成熟 ${w.isKill ? '✨立即' : w.matureAfterStr}</span>
-                                <span class="dry-time">⏰ 干涸 ${w.dryAfterStr}</span>
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-            timelineHtml += '</div>';
-            
-            let detailHtml = `
-                <div class="info-panel">
-                    <div style="margin-bottom:8px;"><strong>🌱 ${plan.cropHours}小时作物</strong> | 满水时长: ${formatDurationLong(plan.waterMinutes)}</div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;">
-                        <div>💧 首次:<br><span class="highlight">${plan.firstWaterStr}</span></div>
-                        <div>⏰ 干涸:<br><span class="highlight">${zone.dryTime}</span></div>
-                        <div>🌾 原始:<br><span class="highlight">${plan.originalMatureStr}</span></div>
-                        <div>📊 剩余:<br><span class="highlight">${plan.futureWaters}次</span></div>
-                    </div>
-                </div>
-                ${waterStatusHtml}
-                ${timelineHtml}
-            `;
-            
-            let urgentBadge = '';
-            if (plan.nextWater) {
-                let timeDiff = (plan.nextWater.waterTime - currentNowMinutes + 1440) % 1440;
-                if (timeDiff < 30) {
-                    urgentBadge = '<span style="background:#ff6b6b;color:white;padding:2px 6px;border-radius:20px;font-size:0.55rem;">⚠️</span>';
-                }
-            }
-            
-            let waterCountDisplay = plan.futureWaters > 0 ? `💧${plan.futureWaters}` : '✅';
-            
-            listHtml += `<div class="zone-item">
-                <div class="zone-header" onclick="toggleZone('${zoneId}')">
-                    <span class="zone-name">🌾${zone.zoneName}</span>
-                    <span class="crop-hour">${plan.cropHours}H</span>
-                    <span class="next-water">⏰${nextWaterDisplay}</span>
-                    ${urgentBadge}
-                    <span class="zone-badge">${waterCountDisplay}</span>
-                </div>
-                <div id="${zoneId}" class="zone-detail">
-                    ${detailHtml}
-                </div>
-            </div>`;
-        }
-        
-        listHtml += '</div>';
-        return statsHtml + listHtml;
-    }
-
-    window.toggleZone = function(id) {
-        let el = document.getElementById(id);
-        if (el) el.classList.toggle('open');
-    };
-
-    function sortByNextWaterTime(zones) {
-        return [...zones].sort((a, b) => {
-            let planA = calculateWaterPlan(a);
-            let planB = calculateWaterPlan(b);
-            if (!planA || !planB) return 0;
-            
-            let nowMins = currentNowMinutes;
-            let timeA = planA.nextWater ? planA.nextWater.waterTime : 99999;
-            let timeB = planB.nextWater ? planB.nextWater.waterTime : 99999;
-            
-            let diffA = timeA - nowMins;
-            if (diffA < 0) diffA += 1440;
-            let diffB = timeB - nowMins;
-            if (diffB < 0) diffB += 1440;
-            
-            return diffA - diffB;
-        });
-    }
-
-    function loadFromUrlAndCalculate() {
-        let urlData = getUrlData();
-        if (urlData) {
-            document.getElementById('rawData').value = urlData;
-            currentZones = parseZoneData(urlData);
-            document.getElementById('resultArea').innerHTML = renderZones(currentZones);
-            document.getElementById('urlHint').textContent = '✅ 已从链接加载数据';
-        }
-    }
-
-    document.getElementById('calcBtn').onclick = () => {
-        let raw = document.getElementById('rawData').value;
-        if (!raw.trim()) return;
-        currentZones = parseZoneData(raw);
-        document.getElementById('resultArea').innerHTML = renderZones(currentZones);
-    };
-
-    document.getElementById('sortBtn').onclick = () => {
-        if (!currentZones.length) {
-            let raw = document.getElementById('rawData').value;
-            if (!raw.trim()) return;
-            currentZones = parseZoneData(raw);
-        }
-        if (currentZones.length) {
-            let sorted = sortByNextWaterTime(currentZones);
-            document.getElementById('resultArea').innerHTML = renderZones(sorted);
-        }
-    };
-
-    document.getElementById('copyUrlBtn').onclick = () => {
-        let raw = document.getElementById('rawData').value;
-        if (!raw.trim()) {
-            alert('请先输入数据');
-            return;
-        }
-        let url = generateShareUrl(raw);
-        navigator.clipboard.writeText(url).then(() => {
-            document.getElementById('urlHint').textContent = '📋 链接已复制！';
-            setTimeout(() => {
-                document.getElementById('urlHint').textContent = '';
-            }, 2000);
-        }).catch(() => {
-            prompt('手动复制以下链接:', url);
-        });
-    };
-
-    document.getElementById('clearBtn').onclick = () => {
-        document.getElementById('rawData').value = '';
-        document.getElementById('resultArea').innerHTML = '<div class="stats"></div>';
-        currentZones = [];
-        document.getElementById('urlHint').textContent = '';
-    };
-
-    // 页面加载时自动从URL读取数据
-    window.addEventListener('load', () => {
-        let urlData = getUrlData();
-        if (urlData) {
-            document.getElementById('rawData').value = urlData;
-            currentZones = parseZoneData(urlData);
-            document.getElementById('resultArea').innerHTML = renderZones(currentZones);
-            document.getElementById('urlHint').textContent = '✅ 已从链接加载 ' + currentZones.length + ' 块地';
-        } else {
-            let example = ``;
-            document.getElementById('rawData').value = example;
-            currentZones = parseZoneData(example);
-            document.getElementById('resultArea').innerHTML = renderZones(currentZones);
-        }
+    d.events.forEach(e => {
+      let isCurr = d.next && e.absMs === d.next.absMs;
+      let cls = e.type === 'kill' ? 'kill' : '';
+      if (isCurr) cls += ' current';
+      let title = e.type === 'kill' ? '斩杀' : '浇水';
+      
+      html += `
+        <div class="water-card ${cls}">
+          <div class="water-left">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="water-title">${title}</span>
+              ${isCurr ? '<span class="wait-badge urgent">下次</span>' : ''}
+            </div>
+            <div class="water-big-time">${e.timeStr}</div>
+          </div>
+          <div class="water-right">
+            <span class="water-amount">💧${toHm(e.add)}</span>
+            <span class="water-reduce">➖${toHm(e.red)}</span>
+          </div>
+        </div>`;
     });
+
+    html += `</div></div></div>`;
+  });
+  html += '</div>';
+  document.getElementById('resultArea').innerHTML = html;
+}
+
+function refreshWaterValues() {
+  for (let id in zoneRealData) {
+    let d = computeZoneReal(currentZones[parseInt(id.replace('z',''))]);
+    let wt = document.getElementById(`wtext-${id}`);
+    let wp2 = document.getElementById(`wpct2-${id}`);
+    let br = document.getElementById(`wbar-${id}`);
+    if (wt) wt.textContent = toHm(d.currentWaterMin);
+    if (wp2) wp2.textContent = Math.round(d.pct) + '%';
+    if (br) br.style.width = d.pct + '%';
+  }
+}
+
+window.toggle = id => document.getElementById(id).classList.toggle('open');
+
+function sortByNext() {
+  if (!currentZones.length) return;
+  currentZones.sort((a, b) => {
+    let da = computeZoneReal(a);
+    let db = computeZoneReal(b);
+    let ta = da.next ? da.next.absMs : 9e15;
+    let tb = db.next ? db.next.absMs : 9e15;
+    return ta - tb;
+  });
+  render();
+}
+
+document.getElementById('calcBtn').onclick = () => {
+  currentZones = parseLines(document.getElementById('rawData').value);
+  render();
+};
+
+document.getElementById('sortBtn').onclick = sortByNext;
+document.getElementById('clearBtn').onclick = () => {
+  document.getElementById('rawData').value = '';
+  currentZones = [];
+  zoneRealData = {};
+  document.getElementById('resultArea').innerHTML = '<div class="stats"></div>';
+};
+
+setInterval(() => {
+  updateLocalTime();
+  refreshWaterValues();
+}, 1000);
+
+updateLocalTime();
 </script>
 </body>
 </html>
