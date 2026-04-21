@@ -129,8 +129,8 @@
             gap: 2px;
         }
         .next-water.done {
-            background: #2ecc71; /* 绿色底色 */
-            color: #2a5c24;      /* 恢复原深色文字 */
+            background: #2ecc71;
+            color: #2a5c24;
             font-weight: bold;
         }
         .zone-badge { 
@@ -313,6 +313,29 @@ let currentZones = [];
 let zoneRealData = {};
 let now = new Date();
 
+// 🔑 自动解析URL乱码主函数
+function loadDataFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    let data = params.get('data');
+    if (!data) return;
+    
+    // 双重解码解决乱码
+    data = decodeURIComponent(data);
+    data = decodeURIComponent(data);
+    
+    // 替换特殊符号为正常分隔符
+    data = data.replace(/â/g, '┆').replace(/ï¼/g, '：');
+    data = data.replace(/\s+/g, ' ').trim();
+    
+    document.getElementById('rawData').value = data;
+    return true;
+  } catch (e) {
+    console.error('URL解析失败', e);
+    return false;
+  }
+}
+
 function updateLocalTime() {
   now = new Date();
   let h = now.getHours().toString().padStart(2, '0');
@@ -329,7 +352,6 @@ function updateLocalTime() {
 
 function parseTimeWithPrefix(timeStr) {
     timeStr = timeStr.trim().toUpperCase();
-    let prefix = '';
     let dayOffset = 0;
     if (timeStr.startsWith('T')) { dayOffset = 1; timeStr = timeStr.substring(1); }
     else if (timeStr.startsWith('R')) { dayOffset = 2; timeStr = timeStr.substring(1); }
@@ -553,12 +575,20 @@ document.getElementById('clearBtn').onclick = () => {
   document.getElementById('resultArea').innerHTML = '<div class="stats"></div>';
 };
 
+// 页面加载自动执行
+window.addEventListener('load', () => {
+  updateLocalTime();
+  let ok = loadDataFromUrl();
+  if (ok) {
+    currentZones = parseLines(document.getElementById('rawData').value);
+    render();
+  }
+});
+
 setInterval(() => {
   updateLocalTime();
   refreshWaterValues();
 }, 1000);
-
-updateLocalTime();
 </script>
 </body>
 </html>
